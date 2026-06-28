@@ -1,0 +1,15 @@
+{
+  "name": "Sistem Rekomendasi Sawah",
+  "short_name": "Sawah IoT",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f7f6",
+  "theme_color": "#27ae60",
+  "icons": [
+    {
+      "src": "./ikon-sawah.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
