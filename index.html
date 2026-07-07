@@ -181,8 +181,7 @@
       offlineBanner.style.display = 'block';
     }
   </script>
-
-  <script type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -202,12 +201,11 @@
     const auth = getAuth(app);
     const sawahRef = ref(db, 'kondisi_sawah');
 
-    // --- LOGIKA WARNA & TEKS KONDISI (REVISI AHLI) ---
+    // Fungsi update warna card
     function updateCard(cardId, statId, val, tipe) {
       const card = document.getElementById(cardId);
       const stat = document.getElementById(statId);
       
-      // Reset kelas warna
       card.className = "card"; 
       let teksKondisi = "";
 
@@ -230,10 +228,8 @@
       stat.innerText = teksKondisi;
     }
 
-    // Tarik data Firebase
-    onValue(sawahRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
+    // --- FUNGSI TAMPILKAN DATA (Dipisah biar bisa dipakai Online & Offline) ---
+    function renderDataKeLayar(data) {
         document.getElementById('val-kelembapan').innerText = data.kelembapan;
         document.getElementById('val-ph').innerText = data.ph;
         document.getElementById('val-n').innerText = data.nitrogen;
@@ -244,12 +240,28 @@
           document.getElementById('val-rekomendasi').innerText = data.rekomendasi;
         }
 
-        // Panggil fungsi warna & teks
         updateCard("card-kelembapan", "stat-kelembapan", data.kelembapan, "kelembapan");
         updateCard("card-ph", "stat-ph", data.ph, "ph");
         updateCard("card-n", "stat-n", data.nitrogen, "npk");
         updateCard("card-p", "stat-p", data.fosfor, "npk");
         updateCard("card-k", "stat-k", data.kalium, "npk");
+    }
+
+    // --- 1. CEK DATA OFFLINE DI MEMORI HP SAAT APLIKASI DIBUKA ---
+    const dataTersimpan = localStorage.getItem('dataSawahTerakhir');
+    if (dataTersimpan) {
+        // Kalau ada data lama di memori, langsung tampilkan!
+        renderDataKeLayar(JSON.parse(dataTersimpan));
+    }
+
+    // --- 2. TARIK DATA ONLINE DARI FIREBASE ---
+    onValue(sawahRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        // Simpan data terbaru ke memori HP
+        localStorage.setItem('dataSawahTerakhir', JSON.stringify(data));
+        // Tampilkan ke layar
+        renderDataKeLayar(data);
       }
     });
 
@@ -259,11 +271,9 @@
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Kalau udah login, buka dashboard
         loginScreen.style.display = "none";
         dashboard.style.display = "flex";
       } else {
-        // Kalau belum, kurung di halaman login
         loginScreen.style.display = "flex";
         dashboard.style.display = "none";
       }
