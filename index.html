@@ -94,7 +94,8 @@
 
     /* KOTAK REKOMENDASI OUTPUT */
     .rekomendasi-card {
-      background: #7f8c8d; color: white; margin-top: 20px; width: 100%; max-width: 450px;
+      background: #7f8c8d; /* Warna abu-abu default sebelum ada data */
+      color: white; margin-top: 20px; width: 100%; max-width: 450px;
       padding: 20px; border-radius: 15px; text-align: center; box-sizing: border-box;
       transition: background 0.5s ease;
       box-shadow: 0 6px 12px rgba(0,0,0,0.1);
@@ -168,26 +169,84 @@
   </div>
 
   <script>
-    const offlineBanner = document.getElementById('offline-banner');
-    
-    window.addEventListener('offline', () => {
-      offlineBanner.style.display = 'block';
-    });
-    
-    window.addEventListener('online', () => {
-      offlineBanner.style.display = 'none';
-    });
-
-    if (!navigator.onLine) {
-      offlineBanner.style.display = 'block';
-    }
-  </script>
-
-  <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js')
         .then(() => console.log("Service Worker Registered"))
         .catch(err => console.log("Service Worker Failed", err));
+    }
+  </script>
+
+  <script>
+    const offlineBanner = document.getElementById('offline-banner');
+    window.addEventListener('offline', () => { offlineBanner.style.display = 'block'; });
+    window.addEventListener('online', () => { offlineBanner.style.display = 'none'; });
+    if (!navigator.onLine) { offlineBanner.style.display = 'block'; }
+
+    const loginScreen = document.getElementById('login-screen');
+    const dashboard = document.getElementById('dashboard');
+
+    // Fungsi Update Warna Sensor
+    window.updateCard = function(cardId, statId, val, tipe) {
+      const card = document.getElementById(cardId);
+      const stat = document.getElementById(statId);
+      card.className = "card"; 
+      let teksKondisi = "";
+
+      if (tipe === "kelembapan") {
+        if (val <= 40) { card.classList.add("status-rendah"); teksKondisi = "Kering"; }
+        else if (val > 40 && val < 60) { card.classList.add("status-optimal"); teksKondisi = "Lembab / Optimal"; }
+        else { card.classList.add("status-tinggi"); teksKondisi = "Tergenang"; }
+      } else if (tipe === "ph") {
+        if (val < 6.0) { card.classList.add("status-rendah"); teksKondisi = "Asam"; }
+        else if (val >= 6.0 && val <= 7.0) { card.classList.add("status-optimal"); teksKondisi = "Netral / Optimal"; }
+        else { card.classList.add("status-tinggi"); teksKondisi = "Basa"; }
+      } else if (tipe === "npk") {
+        if (val <= 30) { card.classList.add("status-rendah"); teksKondisi = "Kurang Hara"; }
+        else if (val > 30 && val < 50) { card.classList.add("status-optimal"); teksKondisi = "Hara Tercukupi"; }
+        else { card.classList.add("status-tinggi"); teksKondisi = "Hara Berlebih"; }
+      }
+      stat.innerText = teksKondisi;
+    }
+
+    // Fungsi Render Tampilan Keseluruhan
+    window.renderDataKeLayar = function(data) {
+        document.getElementById('val-kelembapan').innerText = data.kelembapan;
+        document.getElementById('val-ph').innerText = data.ph;
+        document.getElementById('val-n').innerText = data.nitrogen;
+        document.getElementById('val-p').innerText = data.fosfor;
+        document.getElementById('val-k').innerText = data.kalium;
+        
+        // --- FUNGSI GANTI WARNA REKOMENDASI (ANTI CRASH) ---
+        if(data.rekomendasi) {
+          document.getElementById('val-rekomendasi').innerText = data.rekomendasi;
+          const rekCard = document.getElementById('card-rekomendasi');
+          const txt = data.rekomendasi.toLowerCase();
+          
+          if (txt.includes("kritis") || txt.includes("tindakan")) {
+            rekCard.style.background = "linear-gradient(135deg, var(--warna-merah-tinggi), #c0392b)";
+          } else if (txt.includes("aman") || txt.includes("optimal")) {
+            rekCard.style.background = "linear-gradient(135deg, var(--warna-biru-optimal), #2980b9)";
+          } else if (txt.includes("waspada") || txt.includes("perhatian") || txt.includes("perbaikan") || txt.includes("pantau")) {
+            rekCard.style.background = "linear-gradient(135deg, var(--warna-kuning-rendah), #d35400)";
+          } else {
+            rekCard.style.background = "#7f8c8d";
+          }
+        }
+
+        window.updateCard("card-kelembapan", "stat-kelembapan", data.kelembapan, "kelembapan");
+        window.updateCard("card-ph", "stat-ph", data.ph, "ph");
+        window.updateCard("card-n", "stat-n", data.nitrogen, "npk");
+        window.updateCard("card-p", "stat-p", data.fosfor, "npk");
+        window.updateCard("card-k", "stat-k", data.kalium, "npk");
+    }
+
+    // Panggil data memori langsung tanpa nunggu Firebase
+    const dataTersimpan = localStorage.getItem('dataSawahTerakhir');
+    const statusLogin = localStorage.getItem('sawahStatusLogin');
+    if (!navigator.onLine && statusLogin === 'true') {
+        loginScreen.style.display = "none";
+        dashboard.style.display = "flex";
+        if (dataTersimpan) { window.renderDataKeLayar(JSON.parse(dataTersimpan)); }
     }
   </script>
 
@@ -211,101 +270,35 @@
     const auth = getAuth(app);
     const sawahRef = ref(db, 'kondisi_sawah');
 
-    function updateCard(cardId, statId, val, tipe) {
-      const card = document.getElementById(cardId);
-      const stat = document.getElementById(statId);
-      
-      card.className = "card"; 
-      let teksKondisi = "";
-
-      if (tipe === "kelembapan") {
-        if (val <= 40) { card.classList.add("status-rendah"); teksKondisi = "Kering"; }
-        else if (val > 40 && val < 60) { card.classList.add("status-optimal"); teksKondisi = "Lembab / Optimal"; }
-        else { card.classList.add("status-tinggi"); teksKondisi = "Tergenang"; }
-      } 
-      else if (tipe === "ph") {
-        if (val < 6.0) { card.classList.add("status-rendah"); teksKondisi = "Asam"; }
-        else if (val >= 6.0 && val <= 7.0) { card.classList.add("status-optimal"); teksKondisi = "Netral / Optimal"; }
-        else { card.classList.add("status-tinggi"); teksKondisi = "Basa"; }
-      }
-      else if (tipe === "npk") {
-        if (val <= 30) { card.classList.add("status-rendah"); teksKondisi = "Kurang Hara"; }
-        else if (val > 30 && val < 50) { card.classList.add("status-optimal"); teksKondisi = "Hara Tercukupi"; }
-        else { card.classList.add("status-tinggi"); teksKondisi = "Hara Berlebih"; }
-      }
-
-      stat.innerText = teksKondisi;
-    }
-
-    function renderDataKeLayar(data) {
-        document.getElementById('val-kelembapan').innerText = data.kelembapan;
-        document.getElementById('val-ph').innerText = data.ph;
-        document.getElementById('val-n').innerText = data.nitrogen;
-        document.getElementById('val-p').innerText = data.fosfor;
-        document.getElementById('val-k').innerText = data.kalium;
-        
-        // --- LOGIKA WARNA KOTAK REKOMENDASI (SESUAI INDIKATOR) ---
-        if(data.rekomendasi) {
-          document.getElementById('val-rekomendasi').innerText = data.rekomendasi;
-          
-          const rekCard = document.getElementById('card-rekomendasi');
-          const txt = data.rekomendasi.toLowerCase();
-          
-          if (txt.includes("kritis") || txt.includes("tindakan")) {
-            // MERAH: Bahaya / Kritis / Tindakan Segera
-            rekCard.style.background = "linear-gradient(135deg, var(--warna-merah-tinggi), #c0392b)";
-          } else if (txt.includes("aman") || txt.includes("optimal")) {
-            // BIRU: Kondisi Aman / Optimal
-            rekCard.style.background = "linear-gradient(135deg, var(--warna-biru-optimal), #2980b9)";
-          } else {
-            // KUNING: Status Waspada / Perhatian / Pantau / Perbaikan
-            rekCard.style.background = "linear-gradient(135deg, var(--warna-kuning-rendah), #f39c12)";
-          }
-        }
-
-        updateCard("card-kelembapan", "stat-kelembapan", data.kelembapan, "kelembapan");
-        updateCard("card-ph", "stat-ph", data.ph, "ph");
-        updateCard("card-n", "stat-n", data.nitrogen, "npk");
-        updateCard("card-p", "stat-p", data.fosfor, "npk");
-        updateCard("card-k", "stat-k", data.kalium, "npk");
-    }
-
-    // CEK DATA OFFLINE 
-    const dataTersimpan = localStorage.getItem('dataSawahTerakhir');
-    if (dataTersimpan) {
-        renderDataKeLayar(JSON.parse(dataTersimpan));
-    }
-
-    // TARIK DATA ONLINE
     onValue(sawahRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         localStorage.setItem('dataSawahTerakhir', JSON.stringify(data));
-        renderDataKeLayar(data);
+        window.renderDataKeLayar(data);
       }
     });
 
-    // LOGIKA LOGIN & LOGOUT
-    const loginScreen = document.getElementById('login-screen');
-    const dashboard = document.getElementById('dashboard');
-
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        loginScreen.style.display = "none";
-        dashboard.style.display = "flex";
+        localStorage.setItem('sawahStatusLogin', 'true');
+        document.getElementById('login-screen').style.display = "none";
+        document.getElementById('dashboard').style.display = "flex";
+        
+        const dataTersimpan = localStorage.getItem('dataSawahTerakhir');
+        if (dataTersimpan) { window.renderDataKeLayar(JSON.parse(dataTersimpan)); }
       } else {
-        loginScreen.style.display = "flex";
-        dashboard.style.display = "none";
+        localStorage.setItem('sawahStatusLogin', 'false');
+        document.getElementById('login-screen').style.display = "flex";
+        document.getElementById('dashboard').style.display = "none";
       }
     });
 
     window.login = () => {
       const email = document.getElementById('email').value;
       const pass = document.getElementById('password').value;
-      signInWithEmailAndPassword(auth, email, pass)
-        .catch((error) => {
-          document.getElementById('login-error').style.display = "block";
-        });
+      signInWithEmailAndPassword(auth, email, pass).catch(() => {
+        document.getElementById('login-error').style.display = "block";
+      });
     };
 
     window.logout = () => {
