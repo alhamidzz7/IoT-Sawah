@@ -9,202 +9,183 @@
   <style>
     :root {
       --bg-color: #f0f4f1;
-      --primary-green: #27ae60;
-      --dark-green: #1e8449;
       --card-bg: #ffffff;
       --text-main: #2c3e50;
-      --text-muted: #7f8c8d;
-      --warning-bg: #f39c12;
-      --critical-bg: #c0392b;
+      
+      /* Warna Indikator Baru Sesuai Revisi */
+      --warna-biru-optimal: #3498db;
+      --warna-kuning-rendah: #f1c40f;
+      --warna-merah-tinggi: #e74c3c;
     }
 
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Segoe UI', system-ui, sans-serif;
       background-color: var(--bg-color);
-      margin: 0; 
-      padding: 20px 15px;
-      display: flex; 
-      flex-direction: column; 
-      align-items: center;
+      margin: 0; padding: 0;
       color: var(--text-main);
     }
 
-    .header { 
-      text-align: center; 
-      margin-bottom: 25px; 
-      width: 100%;
-      max-width: 450px;
+    /* --- LOGIN SCREEN --- */
+    #login-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, #27ae60, #1e8449);
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      z-index: 1000;
+    }
+    .login-box {
+      background: white; padding: 30px; border-radius: 15px; width: 85%; max-width: 350px;
+      text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    .login-box h2 { margin-top: 0; color: #27ae60; }
+    .login-box input {
+      width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd;
+      border-radius: 8px; box-sizing: border-box;
+    }
+    .login-box button {
+      width: 100%; padding: 12px; background: #27ae60; color: white;
+      border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer;
+    }
+    #login-error { color: #e74c3c; font-size: 13px; margin-top: 10px; display: none; }
+
+    /* --- DASHBOARD --- */
+    #dashboard {
+      display: none; /* Disembunyikan sebelum login */
+      padding: 20px 15px; display: flex; flex-direction: column; align-items: center;
     }
     
-    .header h1 { 
-      color: var(--dark-green); 
-      margin: 0; 
-      font-size: 26px; 
-      font-weight: 800;
-      letter-spacing: 0.5px;
+    .header { text-align: center; margin-bottom: 20px; width: 100%; max-width: 450px; position: relative;}
+    .header h1 { color: #1e8449; margin: 0; font-size: 24px; font-weight: 800; }
+    .logout-btn { position: absolute; top: 0; right: 0; background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+
+    /* Banner Offline */
+    #offline-banner {
+      display: none; background: #f39c12; color: white; padding: 12px;
+      border-radius: 8px; font-size: 13px; font-weight: bold; text-align: center;
+      margin-bottom: 15px; width: 100%; max-width: 450px; box-sizing: border-box;
     }
-    
-    .header p { 
-      color: var(--text-muted); 
-      margin: 8px 0 0 0; 
-      font-size: 14px; 
-      font-weight: 500;
-    }
-    
+
     .grid-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px; 
-      width: 100%; 
-      max-width: 450px;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 450px;
     }
 
     .card {
-      background: var(--card-bg); 
-      padding: 20px 15px; 
-      border-radius: 16px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.04);
-      text-align: center;
-      transition: transform 0.2s ease;
-      position: relative;
-      overflow: hidden;
+      background: var(--card-bg); padding: 15px; border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-align: center;
+      border-top: 5px solid #ccc; /* Garis warna default */
+      transition: all 0.3s ease;
     }
+    .card-icon { font-size: 20px; margin-bottom: 5px; color: #7f8c8d; }
+    .card-title { font-size: 12px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; }
+    .card-value { font-size: 24px; font-weight: 800; margin-top: 5px; }
+    .card-status { font-size: 13px; font-weight: 700; margin-top: 5px; padding: 3px 8px; border-radius: 12px; display: inline-block;}
 
-    .card::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 4px;
-      background: var(--primary-green);
-      opacity: 0.8;
-    }
+    /* TEMA WARNA REVISI AHLI */
+    .status-optimal { border-top-color: var(--warna-biru-optimal); }
+    .status-optimal .card-icon { color: var(--warna-biru-optimal); }
+    .status-optimal .card-status { background: #e0f7fa; color: var(--warna-biru-optimal); }
 
-    .card-icon {
-      font-size: 24px;
-      color: var(--primary-green);
-      margin-bottom: 10px;
-    }
+    .status-rendah { border-top-color: var(--warna-kuning-rendah); }
+    .status-rendah .card-icon { color: var(--warna-kuning-rendah); }
+    .status-rendah .card-status { background: #fef9e7; color: #d4ac0d; }
 
-    .card-title { 
-      font-size: 12px; 
-      color: var(--text-muted); 
-      font-weight: 700; 
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .card-value { 
-      font-size: 26px; 
-      color: var(--text-main); 
-      font-weight: 800; 
-      margin-top: 8px; 
-    }
+    .status-tinggi { border-top-color: var(--warna-merah-tinggi); }
+    .status-tinggi .card-icon { color: var(--warna-merah-tinggi); }
+    .status-tinggi .card-status { background: #fdedec; color: var(--warna-merah-tinggi); }
 
-    .card-unit {
-      font-size: 14px;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-    
     .rekomendasi-card {
-      background: linear-gradient(135deg, var(--primary-green), var(--dark-green)); 
-      color: white; 
-      margin-top: 25px;
-      width: 100%; 
-      max-width: 450px; 
-      padding: 25px 20px;
-      border-radius: 20px; 
-      text-align: center;
-      box-sizing: border-box;
-      box-shadow: 0 10px 20px rgba(39, 174, 96, 0.2);
-    }
-
-    .rekomendasi-title { 
-      font-size: 13px; 
-      font-weight: 700; 
-      opacity: 0.9; 
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    
-    .rekomendasi-text { 
-      font-size: 18px; 
-      font-weight: 600; 
-      line-height: 1.5;
-    }
-
-    /* Animasi kecil saat data update */
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.02); }
-      100% { transform: scale(1); }
-    }
-    .update-anim {
-      animation: pulse 0.3s ease-in-out;
+      background: #27ae60; color: white; margin-top: 20px; width: 100%; max-width: 450px;
+      padding: 20px; border-radius: 15px; text-align: center; box-sizing: border-box;
     }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h1>Smart Sawah IoT</h1>
-    <p>Sistem Rekomendasi Optimasi Tanah </p>
-  </div> 
-
-  <div class="grid-container">
-    <div class="card" id="card-kelembapan">
-      <div class="card-icon"><i class="fa-solid fa-droplet"></i></div>
-      <div class="card-title">Kelembapan</div>
-      <div class="card-value"><span id="val-kelembapan">--</span><span class="card-unit">%</span></div>
-    </div>
-    
-    <div class="card" id="card-ph">
-      <div class="card-icon"><i class="fa-solid fa-flask"></i></div>
-      <div class="card-title">pH Tanah</div>
-      <div class="card-value"><span id="val-ph">--</span></div>
-    </div>
-    
-    <div class="card" id="card-n">
-      <div class="card-icon"><i class="fa-solid fa-seedling"></i></div>
-      <div class="card-title">Nitrogen (N)</div>
-      <div class="card-value"><span id="val-n">--</span></div>
-    </div>
-    
-    <div class="card" id="card-p">
-      <div class="card-icon"><i class="fa-solid fa-leaf"></i></div>
-      <div class="card-title">Fosfor (P)</div>
-      <div class="card-value"><span id="val-p">--</span></div>
-    </div>
-    
-    <div class="card" id="card-k" style="grid-column: span 2;">
-      <div class="card-icon"><i class="fa-solid fa-tree"></i></div>
-      <div class="card-title">Kalium (K)</div>
-      <div class="card-value"><span id="val-k">--</span></div>
+  <div id="login-screen">
+    <div class="login-box">
+      <h2>Sawah IoT</h2>
+      <p>Silakan login untuk akses data</p>
+      <input type="email" id="email" placeholder="Email Petani">
+      <input type="password" id="password" placeholder="Password">
+      <button onclick="login()">Masuk</button>
+      <div id="login-error">Email atau password salah!</div>
     </div>
   </div>
 
-  <div class="rekomendasi-card" id="card-rekomendasi">
-    <div class="rekomendasi-title">
-      <i class="fa-solid fa-robot"></i> REKOMENDASI 
+  <div id="dashboard">
+    <div class="header">
+      <h1>Smart Sawah</h1>
+      <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-power-off"></i></button>
     </div>
-    <div class="rekomendasi-text" id="val-rekomendasi">Menunggu sinkronisasi data dari sensor...</div>
+
+    <div id="offline-banner">
+      <i class="fa-solid fa-triangle-exclamation"></i> Sekarang sedang menampilkan data yang terakhir, online-kan kembali jika ingin mendapatkan data terbaru.
+    </div>
+
+    <div class="grid-container">
+      <div class="card" id="card-kelembapan">
+        <div class="card-icon"><i class="fa-solid fa-droplet"></i></div>
+        <div class="card-title">Kelembapan</div>
+        <div class="card-value"><span id="val-kelembapan">--</span>%</div>
+        <div class="card-status" id="stat-kelembapan">Memuat...</div>
+      </div>
+      
+      <div class="card" id="card-ph">
+        <div class="card-icon"><i class="fa-solid fa-flask"></i></div>
+        <div class="card-title">pH Tanah</div>
+        <div class="card-value"><span id="val-ph">--</span></div>
+        <div class="card-status" id="stat-ph">Memuat...</div>
+      </div>
+      
+      <div class="card" id="card-n">
+        <div class="card-icon"><i class="fa-solid fa-seedling"></i></div>
+        <div class="card-title">Nitrogen (N)</div>
+        <div class="card-value"><span id="val-n">--</span></div>
+        <div class="card-status" id="stat-n">Memuat...</div>
+      </div>
+      
+      <div class="card" id="card-p">
+        <div class="card-icon"><i class="fa-solid fa-leaf"></i></div>
+        <div class="card-title">Fosfor (P)</div>
+        <div class="card-value"><span id="val-p">--</span></div>
+        <div class="card-status" id="stat-p">Memuat...</div>
+      </div>
+      
+      <div class="card" id="card-k" style="grid-column: span 2;">
+        <div class="card-icon"><i class="fa-solid fa-tree"></i></div>
+        <div class="card-title">Kalium (K)</div>
+        <div class="card-value"><span id="val-k">--</span></div>
+        <div class="card-status" id="stat-k">Memuat...</div>
+      </div>
+    </div>
+
+    <div class="rekomendasi-card" id="card-rekomendasi">
+      <div style="font-size:12px; font-weight:bold; margin-bottom:10px;">REKOMENDASI SISTEM</div>
+      <div id="val-rekomendasi" style="font-size:16px; font-weight:bold;">Menunggu sinkronisasi...</div>
+    </div>
   </div>
 
   <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js')
-        .then(() => console.log("Service Worker Registered"))
-        .catch(err => console.log("Service Worker Failed", err));
+    // --- FITUR OFFLINE / ONLINE DETECTOR ---
+    const offlineBanner = document.getElementById('offline-banner');
+    
+    window.addEventListener('offline', () => {
+      offlineBanner.style.display = 'block';
+    });
+    
+    window.addEventListener('online', () => {
+      offlineBanner.style.display = 'none';
+    });
+
+    // Cek status saat web pertama kali dibuka
+    if (!navigator.onLine) {
+      offlineBanner.style.display = 'block';
     }
   </script>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC2wtVXwHfeDO0QZH5jTN1FofH9496uzSs",
@@ -218,16 +199,38 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const auth = getAuth(app);
     const sawahRef = ref(db, 'kondisi_sawah');
 
-    // Fungsi untuk nambahin animasi setiap data berubah
-    function animateCard(id) {
-      const card = document.getElementById(id);
-      card.classList.remove('update-anim');
-      void card.offsetWidth; // trigger reflow
-      card.classList.add('update-anim');
+    // --- LOGIKA WARNA & TEKS KONDISI (REVISI AHLI) ---
+    function updateCard(cardId, statId, val, tipe) {
+      const card = document.getElementById(cardId);
+      const stat = document.getElementById(statId);
+      
+      // Reset kelas warna
+      card.className = "card"; 
+      let teksKondisi = "";
+
+      if (tipe === "kelembapan") {
+        if (val <= 40) { card.classList.add("status-rendah"); teksKondisi = "Kering"; }
+        else if (val > 40 && val < 60) { card.classList.add("status-optimal"); teksKondisi = "Lembab / Optimal"; }
+        else { card.classList.add("status-tinggi"); teksKondisi = "Tergenang"; }
+      } 
+      else if (tipe === "ph") {
+        if (val < 6.0) { card.classList.add("status-rendah"); teksKondisi = "Asam"; }
+        else if (val >= 6.0 && val <= 7.0) { card.classList.add("status-optimal"); teksKondisi = "Netral / Optimal"; }
+        else { card.classList.add("status-tinggi"); teksKondisi = "Basa"; }
+      }
+      else if (tipe === "npk") {
+        if (val <= 30) { card.classList.add("status-rendah"); teksKondisi = "Kurang Hara"; }
+        else if (val > 30 && val < 50) { card.classList.add("status-optimal"); teksKondisi = "Hara Tercukupi"; }
+        else { card.classList.add("status-tinggi"); teksKondisi = "Hara Berlebih"; }
+      }
+
+      stat.innerText = teksKondisi;
     }
 
+    // Tarik data Firebase
     onValue(sawahRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -239,26 +242,45 @@
         
         if(data.rekomendasi) {
           document.getElementById('val-rekomendasi').innerText = data.rekomendasi;
-          
-          // Ubah warna background rekomendasi kalau statusnya kritis (mengandung kata "Kritis" atau "Tindakan")
-          const rekCard = document.getElementById('card-rekomendasi');
-          if(data.rekomendasi.includes("Kritis") || data.rekomendasi.includes("Tindakan")) {
-            rekCard.style.background = "linear-gradient(135deg, #e74c3c, #c0392b)";
-          } else if(data.rekomendasi.includes("Waspada") || data.rekomendasi.includes("Perbaikan") || data.rekomendasi.includes("Perhatian")) {
-            rekCard.style.background = "linear-gradient(135deg, #f39c12, #d35400)";
-          } else {
-            rekCard.style.background = "linear-gradient(135deg, #27ae60, #1e8449)";
-          }
         }
 
-        // Jalankan animasi pulse
-        animateCard('card-kelembapan');
-        animateCard('card-ph');
-        animateCard('card-n');
-        animateCard('card-p');
-        animateCard('card-k');
+        // Panggil fungsi warna & teks
+        updateCard("card-kelembapan", "stat-kelembapan", data.kelembapan, "kelembapan");
+        updateCard("card-ph", "stat-ph", data.ph, "ph");
+        updateCard("card-n", "stat-n", data.nitrogen, "npk");
+        updateCard("card-p", "stat-p", data.fosfor, "npk");
+        updateCard("card-k", "stat-k", data.kalium, "npk");
       }
     });
+
+    // --- LOGIKA LOGIN & LOGOUT ---
+    const loginScreen = document.getElementById('login-screen');
+    const dashboard = document.getElementById('dashboard');
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Kalau udah login, buka dashboard
+        loginScreen.style.display = "none";
+        dashboard.style.display = "flex";
+      } else {
+        // Kalau belum, kurung di halaman login
+        loginScreen.style.display = "flex";
+        dashboard.style.display = "none";
+      }
+    });
+
+    window.login = () => {
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      signInWithEmailAndPassword(auth, email, pass)
+        .catch((error) => {
+          document.getElementById('login-error').style.display = "block";
+        });
+    };
+
+    window.logout = () => {
+      signOut(auth);
+    };
   </script>
 </body>
 </html>
