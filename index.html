@@ -49,7 +49,7 @@
 
     /* --- DASHBOARD --- */
     #dashboard {
-      display: none; /* Disembunyikan sebelum login */
+      display: none; 
       padding: 20px 15px; display: flex; flex-direction: column; align-items: center;
     }
     
@@ -71,7 +71,7 @@
     .card {
       background: var(--card-bg); padding: 15px; border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-align: center;
-      border-top: 5px solid #ccc; /* Garis warna default */
+      border-top: 5px solid #ccc; 
       transition: all 0.3s ease;
     }
     .card-icon { font-size: 20px; margin-bottom: 5px; color: #7f8c8d; }
@@ -165,7 +165,6 @@
   </div>
 
   <script>
-    // --- FITUR OFFLINE / ONLINE DETECTOR ---
     const offlineBanner = document.getElementById('offline-banner');
     
     window.addEventListener('offline', () => {
@@ -176,12 +175,20 @@
       offlineBanner.style.display = 'none';
     });
 
-    // Cek status saat web pertama kali dibuka
     if (!navigator.onLine) {
       offlineBanner.style.display = 'block';
     }
   </script>
-<script type="module">
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log("Service Worker Registered"))
+        .catch(err => console.log("Service Worker Failed", err));
+    }
+  </script>
+
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -201,7 +208,6 @@
     const auth = getAuth(app);
     const sawahRef = ref(db, 'kondisi_sawah');
 
-    // Fungsi update warna card
     function updateCard(cardId, statId, val, tipe) {
       const card = document.getElementById(cardId);
       const stat = document.getElementById(statId);
@@ -228,7 +234,6 @@
       stat.innerText = teksKondisi;
     }
 
-    // --- FUNGSI TAMPILKAN DATA (Dipisah biar bisa dipakai Online & Offline) ---
     function renderDataKeLayar(data) {
         document.getElementById('val-kelembapan').innerText = data.kelembapan;
         document.getElementById('val-ph').innerText = data.ph;
@@ -247,25 +252,22 @@
         updateCard("card-k", "stat-k", data.kalium, "npk");
     }
 
-    // --- 1. CEK DATA OFFLINE DI MEMORI HP SAAT APLIKASI DIBUKA ---
+    // CEK DATA OFFLINE 
     const dataTersimpan = localStorage.getItem('dataSawahTerakhir');
     if (dataTersimpan) {
-        // Kalau ada data lama di memori, langsung tampilkan!
         renderDataKeLayar(JSON.parse(dataTersimpan));
     }
 
-    // --- 2. TARIK DATA ONLINE DARI FIREBASE ---
+    // TARIK DATA ONLINE
     onValue(sawahRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        // Simpan data terbaru ke memori HP
         localStorage.setItem('dataSawahTerakhir', JSON.stringify(data));
-        // Tampilkan ke layar
         renderDataKeLayar(data);
       }
     });
 
-    // --- LOGIKA LOGIN & LOGOUT ---
+    // LOGIKA LOGIN & LOGOUT
     const loginScreen = document.getElementById('login-screen');
     const dashboard = document.getElementById('dashboard');
 
