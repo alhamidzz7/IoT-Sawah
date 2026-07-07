@@ -12,7 +12,7 @@
       --card-bg: #ffffff;
       --text-main: #2c3e50;
       
-      /* Warna Indikator Baru Sesuai Revisi */
+      /* Warna Indikator Sesuai Revisi Ahli */
       --warna-biru-optimal: #3498db;
       --warna-kuning-rendah: #f1c40f;
       --warna-merah-tinggi: #e74c3c;
@@ -79,7 +79,7 @@
     .card-value { font-size: 24px; font-weight: 800; margin-top: 5px; }
     .card-status { font-size: 13px; font-weight: 700; margin-top: 5px; padding: 3px 8px; border-radius: 12px; display: inline-block;}
 
-    /* TEMA WARNA REVISI AHLI */
+    /* TEMA WARNA INPUT */
     .status-optimal { border-top-color: var(--warna-biru-optimal); }
     .status-optimal .card-icon { color: var(--warna-biru-optimal); }
     .status-optimal .card-status { background: #e0f7fa; color: var(--warna-biru-optimal); }
@@ -92,9 +92,12 @@
     .status-tinggi .card-icon { color: var(--warna-merah-tinggi); }
     .status-tinggi .card-status { background: #fdedec; color: var(--warna-merah-tinggi); }
 
+    /* KOTAK REKOMENDASI OUTPUT */
     .rekomendasi-card {
-      background: #27ae60; color: white; margin-top: 20px; width: 100%; max-width: 450px;
+      background: #7f8c8d; color: white; margin-top: 20px; width: 100%; max-width: 450px;
       padding: 20px; border-radius: 15px; text-align: center; box-sizing: border-box;
+      transition: background 0.5s ease;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
     }
   </style>
 </head>
@@ -159,8 +162,8 @@
     </div>
 
     <div class="rekomendasi-card" id="card-rekomendasi">
-      <div style="font-size:12px; font-weight:bold; margin-bottom:10px;">REKOMENDASI SISTEM</div>
-      <div id="val-rekomendasi" style="font-size:16px; font-weight:bold;">Menunggu sinkronisasi...</div>
+      <div style="font-size:12px; font-weight:bold; margin-bottom:10px;"><i class="fa-solid fa-robot"></i> REKOMENDASI SISTEM MAMDANI</div>
+      <div id="val-rekomendasi" style="font-size:16px; font-weight:bold; line-height: 1.4;">Menunggu sinkronisasi...</div>
     </div>
   </div>
 
@@ -241,8 +244,23 @@
         document.getElementById('val-p').innerText = data.fosfor;
         document.getElementById('val-k').innerText = data.kalium;
         
+        // --- LOGIKA WARNA KOTAK REKOMENDASI (SESUAI INDIKATOR) ---
         if(data.rekomendasi) {
           document.getElementById('val-rekomendasi').innerText = data.rekomendasi;
+          
+          const rekCard = document.getElementById('card-rekomendasi');
+          const txt = data.rekomendasi.toLowerCase();
+          
+          if (txt.includes("kritis") || txt.includes("tindakan")) {
+            // MERAH: Bahaya / Kritis / Tindakan Segera
+            rekCard.style.background = "linear-gradient(135deg, var(--warna-merah-tinggi), #c0392b)";
+          } else if (txt.includes("aman") || txt.includes("optimal")) {
+            // BIRU: Kondisi Aman / Optimal
+            rekCard.style.background = "linear-gradient(135deg, var(--warna-biru-optimal), #2980b9)";
+          } else {
+            // KUNING: Status Waspada / Perhatian / Pantau / Perbaikan
+            rekCard.style.background = "linear-gradient(135deg, var(--warna-kuning-rendah), #f39c12)";
+          }
         }
 
         updateCard("card-kelembapan", "stat-kelembapan", data.kelembapan, "kelembapan");
@@ -291,6 +309,7 @@
     };
 
     window.logout = () => {
+      localStorage.setItem('sawahStatusLogin', 'false');
       signOut(auth);
     };
   </script>
