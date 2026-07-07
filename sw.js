@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sawah-iot-cache-v1';
+const CACHE_NAME = 'sawah-iot-cache-v2'; // <--- Naikkan versinya biar HP sadar ada update!
 
 // Daftar file yang WAJIB disimpan di HP biar bisa dibuka pas offline
 const urlsToCache = [
