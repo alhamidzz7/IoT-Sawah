@@ -216,19 +216,54 @@
       card.className = "card"; 
       let teksKondisi = "";
 
-      if (tipe === "kelembapan") {
-        if (val <= 40) { card.classList.add("status-rendah"); teksKondisi = "Kering"; }
-        else if (val > 40 && val < 60) { card.classList.add("status-optimal"); teksKondisi = "Lembab / Optimal"; }
-        else { card.classList.add("status-tinggi"); teksKondisi = "Tergenang"; }
-      } else if (tipe === "ph") {
-        if (val < 6.0) { card.classList.add("status-rendah"); teksKondisi = "Asam"; }
-        else if (val >= 6.0 && val <= 7.0) { card.classList.add("status-optimal"); teksKondisi = "Netral / Optimal"; }
-        else { card.classList.add("status-tinggi"); teksKondisi = "Basa"; }
-      } else if (tipe === "npk") {
-        if (val <= 30) { card.classList.add("status-rendah"); teksKondisi = "Kurang Hara"; }
-        else if (val > 30 && val < 50) { card.classList.add("status-optimal"); teksKondisi = "Hara Tercukupi"; }
-        else { card.classList.add("status-tinggi"); teksKondisi = "Hara Berlebih"; }
-      }
+     if (tipe === "kelembapan") {
+
+    if (val <= 60) {
+        card.classList.add("status-rendah");
+        teksKondisi = "Kering";
+    }
+    else if (val > 60 && val < 80) {
+        card.classList.add("status-optimal");
+        teksKondisi = "Lembab / Optimal";
+    }
+    else {
+        card.classList.add("status-tinggi");
+        teksKondisi = "Tergenang";
+    }
+
+}
+else if (tipe === "ph") {
+
+    if (val < 5.5) {
+        card.classList.add("status-rendah");
+        teksKondisi = "Asam";
+    }
+    else if (val >= 5.5 && val <= 6.5) {
+        card.classList.add("status-optimal");
+        teksKondisi = "Optimal";
+    }
+    else {
+        card.classList.add("status-tinggi");
+        teksKondisi = "Basa";
+    }
+
+}
+else if (tipe === "npk") {
+
+    if (val < 150) {
+        card.classList.add("status-rendah");
+        teksKondisi = "Hara Rendah";
+    }
+    else if (val >= 150 && val < 300) {
+        card.classList.add("status-optimal");
+        teksKondisi = "Hara Optimal";
+    }
+    else {
+        card.classList.add("status-tinggi");
+        teksKondisi = "Hara Tinggi";
+    }
+
+}
       stat.innerText = teksKondisi;
     }
 
