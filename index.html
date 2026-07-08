@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Sawah IoT</title>
@@ -17,6 +20,20 @@
       --warna-kuning-rendah: #f1c40f;
       --warna-merah-tinggi: #e74c3c;
     }
+    /* TOMBOL EXPORT */
+    .export-container { 
+      display: flex; gap: 10px; width: 100%; max-width: 450px; 
+      margin-top: 15px; margin-bottom: 20px;
+    }
+    .btn-export { 
+      flex: 1; padding: 12px; border: none; border-radius: 12px; 
+      color: white; font-weight: bold; font-size: 14px; cursor: pointer; 
+      display: flex; justify-content: center; align-items: center; gap: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s;
+    }
+    .btn-export:active { transform: scale(0.95); }
+    .btn-excel { background: #27ae60; } /* Hijau Excel */
+    .btn-pdf { background: #c0392b; } /* Merah PDF */
 
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
@@ -167,7 +184,14 @@
       <div id="val-rekomendasi" style="font-size:16px; font-weight:bold; line-height: 1.4;">Menunggu sinkronisasi...</div>
     </div>
   </div>
-
+<div class="export-container">
+      <button class="btn-export btn-excel" onclick="exportExcel()">
+        <i class="fa-solid fa-file-excel"></i> Export Excel
+      </button>
+      <button class="btn-export btn-pdf" onclick="exportPDF()">
+        <i class="fa-solid fa-file-pdf"></i> Export PDF
+      </button>
+    </div>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js')
