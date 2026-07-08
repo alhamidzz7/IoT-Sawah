@@ -21,15 +21,35 @@
       --warna-merah-tinggi: #e74c3c;
     }
     /* TOMBOL EXPORT */
-    .export-container { 
-      display: flex; gap: 10px; width: 100%; max-width: 450px; 
-      margin-top: 15px; margin-bottom: 20px;
+ .export-container { 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+
+    width: 100%;
+    max-width: 450px;
+
+    margin: 20px auto; /* auto bikin container di tengah */
     }
     .btn-export { 
-      flex: 1; padding: 12px; border: none; border-radius: 12px; 
-      color: white; font-weight: bold; font-size: 14px; cursor: pointer; 
-      display: flex; justify-content: center; align-items: center; gap: 8px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s;
+    min-width: 180px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
     }
     .btn-export:active { transform: scale(0.95); }
     .btn-excel { background: #27ae60; } /* Hijau Excel */
