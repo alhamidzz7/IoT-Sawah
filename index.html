@@ -21,45 +21,24 @@
       --warna-merah-tinggi: #e74c3c;
     }
     /* TOMBOL EXPORT */
- .export-container { 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-
-    width: 100%;
-    max-width: 450px;
-
-    margin: 20px auto; /* auto bikin container di tengah */
+    .export-container { 
+      display: flex; justify-content: center; align-items: center; gap: 15px;
+      width: 100%; max-width: 450px; margin: 20px auto; 
     }
     .btn-export { 
-    min-width: 180px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 12px;
-
-    color: white;
-    font-weight: bold;
-    font-size: 14px;
-    cursor: pointer;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
+      min-width: 180px; padding: 12px 20px; border: none; border-radius: 12px;
+      color: white; font-weight: bold; font-size: 14px; cursor: pointer;
+      display: flex; justify-content: center; align-items: center; gap: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s;
     }
     .btn-export:active { transform: scale(0.95); }
-    .btn-excel { background: #27ae60; } /* Hijau Excel */
-    .btn-pdf { background: #c0392b; } /* Merah PDF */
+    .btn-excel { background: #27ae60; } 
+    .btn-pdf { background: #c0392b; } 
 
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
       background-color: var(--bg-color);
-      margin: 0; padding: 0;
-      color: var(--text-main);
+      margin: 0; padding: 0; color: var(--text-main);
     }
 
     /* --- LOGIN SCREEN --- */
@@ -86,15 +65,13 @@
 
     /* --- DASHBOARD --- */
     #dashboard {
-      display: none; 
-      padding: 20px 15px; display: flex; flex-direction: column; align-items: center;
+      display: none; padding: 20px 15px; flex-direction: column; align-items: center;
     }
     
     .header { text-align: center; margin-bottom: 20px; width: 100%; max-width: 450px; position: relative;}
     .header h1 { color: #1e8449; margin: 0; font-size: 24px; font-weight: 800; }
     .logout-btn { position: absolute; top: 0; right: 0; background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
 
-    /* Banner Offline */
     #offline-banner {
       display: none; background: #f39c12; color: white; padding: 12px;
       border-radius: 8px; font-size: 13px; font-weight: bold; text-align: center;
@@ -108,15 +85,13 @@
     .card {
       background: var(--card-bg); padding: 15px; border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-align: center;
-      border-top: 5px solid #ccc; 
-      transition: all 0.3s ease;
+      border-top: 5px solid #ccc; transition: all 0.3s ease;
     }
     .card-icon { font-size: 20px; margin-bottom: 5px; color: #7f8c8d; }
     .card-title { font-size: 12px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; }
     .card-value { font-size: 24px; font-weight: 800; margin-top: 5px; }
     .card-status { font-size: 13px; font-weight: 700; margin-top: 5px; padding: 3px 8px; border-radius: 12px; display: inline-block;}
 
-    /* TEMA WARNA INPUT */
     .status-optimal { border-top-color: var(--warna-biru-optimal); }
     .status-optimal .card-icon { color: var(--warna-biru-optimal); }
     .status-optimal .card-status { background: #e0f7fa; color: var(--warna-biru-optimal); }
@@ -129,13 +104,10 @@
     .status-tinggi .card-icon { color: var(--warna-merah-tinggi); }
     .status-tinggi .card-status { background: #fdedec; color: var(--warna-merah-tinggi); }
 
-    /* KOTAK REKOMENDASI OUTPUT */
     .rekomendasi-card {
-      background: #7f8c8d; /* Warna abu-abu default sebelum ada data */
-      color: white; margin-top: 20px; width: 100%; max-width: 450px;
+      background: #7f8c8d; color: white; margin-top: 20px; width: 100%; max-width: 450px;
       padding: 20px; border-radius: 15px; text-align: center; box-sizing: border-box;
-      transition: background 0.5s ease;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      transition: background 0.5s ease; box-shadow: 0 6px 12px rgba(0,0,0,0.1);
     }
   </style>
 </head>
@@ -203,8 +175,8 @@
       <div style="font-size:12px; font-weight:bold; margin-bottom:10px;"><i class="fa-solid fa-robot"></i> REKOMENDASI SISTEM MAMDANI</div>
       <div id="val-rekomendasi" style="font-size:16px; font-weight:bold; line-height: 1.4;">Menunggu sinkronisasi...</div>
     </div>
-  </div>
-<div class="export-container">
+    
+    <div class="export-container">
       <button class="btn-export btn-excel" onclick="exportExcel()">
         <i class="fa-solid fa-file-excel"></i> Export Excel
       </button>
@@ -212,6 +184,8 @@
         <i class="fa-solid fa-file-pdf"></i> Export PDF
       </button>
     </div>
+  </div>
+
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js')
@@ -229,65 +203,30 @@
     const loginScreen = document.getElementById('login-screen');
     const dashboard = document.getElementById('dashboard');
 
-    // Fungsi Update Warna Sensor
     window.updateCard = function(cardId, statId, val, tipe) {
       const card = document.getElementById(cardId);
       const stat = document.getElementById(statId);
       card.className = "card"; 
       let teksKondisi = "";
 
-     if (tipe === "kelembapan") {
-
-    if (val <= 60) {
-        card.classList.add("status-rendah");
-        teksKondisi = "Kering";
-    }
-    else if (val > 60 && val < 80) {
-        card.classList.add("status-optimal");
-        teksKondisi = "Lembab / Optimal";
-    }
-    else {
-        card.classList.add("status-tinggi");
-        teksKondisi = "Tergenang";
-    }
-
-}
-else if (tipe === "ph") {
-
-    if (val < 5.5) {
-        card.classList.add("status-rendah");
-        teksKondisi = "Asam";
-    }
-    else if (val >= 5.5 && val <= 6.5) {
-        card.classList.add("status-optimal");
-        teksKondisi = "Optimal";
-    }
-    else {
-        card.classList.add("status-tinggi");
-        teksKondisi = "Basa";
-    }
-
-}
-else if (tipe === "npk") {
-
-    if (val < 150) {
-        card.classList.add("status-rendah");
-        teksKondisi = "Hara Rendah";
-    }
-    else if (val >= 150 && val < 300) {
-        card.classList.add("status-optimal");
-        teksKondisi = "Hara Optimal";
-    }
-    else {
-        card.classList.add("status-tinggi");
-        teksKondisi = "Hara Tinggi";
-    }
-
-}
+      if (tipe === "kelembapan") {
+        if (val <= 60) { card.classList.add("status-rendah"); teksKondisi = "Kering"; }
+        else if (val > 60 && val < 80) { card.classList.add("status-optimal"); teksKondisi = "Lembab / Optimal"; }
+        else { card.classList.add("status-tinggi"); teksKondisi = "Tergenang"; }
+      }
+      else if (tipe === "ph") {
+        if (val < 5.5) { card.classList.add("status-rendah"); teksKondisi = "Asam"; }
+        else if (val >= 5.5 && val <= 6.5) { card.classList.add("status-optimal"); teksKondisi = "Optimal"; }
+        else { card.classList.add("status-tinggi"); teksKondisi = "Basa"; }
+      }
+      else if (tipe === "npk") {
+        if (val < 150) { card.classList.add("status-rendah"); teksKondisi = "Hara Rendah"; }
+        else if (val >= 150 && val < 300) { card.classList.add("status-optimal"); teksKondisi = "Hara Optimal"; }
+        else { card.classList.add("status-tinggi"); teksKondisi = "Hara Tinggi"; }
+      }
       stat.innerText = teksKondisi;
     }
 
-    // Fungsi Render Tampilan Keseluruhan
     window.renderDataKeLayar = function(data) {
         document.getElementById('val-kelembapan').innerText = data.kelembapan;
         document.getElementById('val-ph').innerText = data.ph;
@@ -295,7 +234,6 @@ else if (tipe === "npk") {
         document.getElementById('val-p').innerText = data.fosfor;
         document.getElementById('val-k').innerText = data.kalium;
         
-        // --- FUNGSI GANTI WARNA REKOMENDASI (ANTI CRASH) ---
         if(data.rekomendasi) {
           document.getElementById('val-rekomendasi').innerText = data.rekomendasi;
           const rekCard = document.getElementById('card-rekomendasi');
@@ -318,63 +256,7 @@ else if (tipe === "npk") {
         window.updateCard("card-p", "stat-p", data.fosfor, "npk");
         window.updateCard("card-k", "stat-k", data.kalium, "npk");
     }
-    // --- FUNGSI EXPORT KE EXCEL ---
-    window.exportExcel = function() {
-      // Tarik data yang lagi tampil di layar saat ini
-      const dataSawah = [{
-        "Waktu Pantau": new Date().toLocaleString('id-ID'),
-        "Kelembapan Tanah (%)": document.getElementById('val-kelembapan').innerText,
-        "pH Tanah": document.getElementById('val-ph').innerText,
-        "Nitrogen - N (mg/kg)": document.getElementById('val-n').innerText,
-        "Fosfor - P (mg/kg)": document.getElementById('val-p').innerText,
-        "Kalium - K (mg/kg)": document.getElementById('val-k').innerText,
-        "Keputusan Fuzzy Mamdani": document.getElementById('val-rekomendasi').innerText
-      }];
 
-      // Proses jadi file Excel
-      const ws = XLSX.utils.json_to_sheet(dataSawah);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Data Sawah");
-      
-      // Download otomatis
-      XLSX.writeFile(wb, "Laporan_Sawah_IoT.xlsx");
-    }
-
-    // --- FUNGSI EXPORT KE PDF ---
-    window.exportPDF = function() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-
-      // Judul Laporan
-      doc.setFontSize(16);
-      doc.text("Laporan Pemantauan Kualitas Tanah Sawah (IoT)", 14, 20);
-      doc.setFontSize(11);
-      doc.text("Waktu Cetak: " + new Date().toLocaleString('id-ID'), 14, 28);
-      
-      // Susun isi tabel
-      const tableData = [
-        ["Kelembapan Tanah", document.getElementById('val-kelembapan').innerText + " %"],
-        ["Tingkat pH", document.getElementById('val-ph').innerText],
-        ["Kadar Nitrogen (N)", document.getElementById('val-n').innerText + " mg/kg"],
-        ["Kadar Fosfor (P)", document.getElementById('val-p').innerText + " mg/kg"],
-        ["Kadar Kalium (K)", document.getElementById('val-k').innerText + " mg/kg"],
-        ["Status Sistem", document.getElementById('val-rekomendasi').innerText]
-      ];
-
-      // Gambar tabel ke PDF
-      doc.autoTable({
-        startY: 35,
-        head: [['Indikator Fisikokimia', 'Nilai Terbaca']],
-        body: tableData,
-        theme: 'grid',
-        headStyles: { fillColor: [39, 174, 96] } // Warna hijau header
-      });
-
-      // Download otomatis
-      doc.save("Laporan_Sawah_IoT.pdf");
-    }
-
-    // Panggil data memori langsung tanpa nunggu Firebase
     const dataTersimpan = localStorage.getItem('dataSawahTerakhir');
     const statusLogin = localStorage.getItem('sawahStatusLogin');
     if (!navigator.onLine && statusLogin === 'true') {
@@ -439,18 +321,18 @@ else if (tipe === "npk") {
       localStorage.setItem('sawahStatusLogin', 'false');
       signOut(auth);
     };
+
     // --- FUNGSI EXPORT KE EXCEL (TARIK DARI RIWAYAT FIREBASE) ---
     window.exportExcel = async function() {
       try {
         alert("Sedang mengambil seluruh riwayat data dari server, mohon tunggu...");
         const riwayatRef = ref(db, 'riwayat_sawah');
-        const snapshot = await get(riwayatRef); // Narik semua data di folder riwayat
+        const snapshot = await get(riwayatRef);
         
         if (snapshot.exists()) {
           const dataHistory = [];
           let no = 1;
           
-          // Susun semua data ke dalam tabel Excel
           snapshot.forEach((childSnapshot) => {
             const item = childSnapshot.val();
             dataHistory.push({
@@ -488,7 +370,6 @@ else if (tipe === "npk") {
           const { jsPDF } = window.jspdf;
           const doc = new jsPDF();
 
-          // Header Laporan
           doc.setFontSize(16);
           doc.text("Laporan Riwayat Pemantauan Sawah (IoT)", 14, 20);
           doc.setFontSize(11);
@@ -498,7 +379,6 @@ else if (tipe === "npk") {
           const tableData = [];
           let no = 1;
           
-          // Susun data ke dalam array PDF
           snapshot.forEach((childSnapshot) => {
             const item = childSnapshot.val();
             tableData.push([
@@ -512,7 +392,6 @@ else if (tipe === "npk") {
             ]);
           });
 
-          // Gambar tabel
           doc.autoTable({
             startY: 40,
             head: [['No', 'Lembab', 'pH', 'N', 'P', 'K', 'Status / Rekomendasi']],
