@@ -386,7 +386,7 @@ else if (tipe === "npk") {
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -439,6 +439,97 @@ else if (tipe === "npk") {
       localStorage.setItem('sawahStatusLogin', 'false');
       signOut(auth);
     };
+    // --- FUNGSI EXPORT KE EXCEL (TARIK DARI RIWAYAT FIREBASE) ---
+    window.exportExcel = async function() {
+      try {
+        alert("Sedang mengambil seluruh riwayat data dari server, mohon tunggu...");
+        const riwayatRef = ref(db, 'riwayat_sawah');
+        const snapshot = await get(riwayatRef); // Narik semua data di folder riwayat
+        
+        if (snapshot.exists()) {
+          const dataHistory = [];
+          let no = 1;
+          
+          // Susun semua data ke dalam tabel Excel
+          snapshot.forEach((childSnapshot) => {
+            const item = childSnapshot.val();
+            dataHistory.push({
+              "No.": no++,
+              "ID Data Firebase": childSnapshot.key,
+              "Kelembapan (%)": item.kelembapan,
+              "pH Tanah": item.ph,
+              "Nitrogen (mg/kg)": item.nitrogen,
+              "Fosfor (mg/kg)": item.fosfor,
+              "Kalium (mg/kg)": item.kalium,
+              "Rekomendasi Mamdani": item.rekomendasi
+            });
+          });
+
+          const ws = XLSX.utils.json_to_sheet(dataHistory);
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Riwayat Sawah");
+          XLSX.writeFile(wb, "Riwayat_Lengkap_Sawah_IoT.xlsx");
+        } else {
+          alert("Belum ada riwayat data di server!");
+        }
+      } catch (error) {
+        alert("Gagal mengambil data: " + error.message);
+      }
+    }
+
+    // --- FUNGSI EXPORT KE PDF (TARIK DARI RIWAYAT FIREBASE) ---
+    window.exportPDF = async function() {
+      try {
+        alert("Sedang menyusun PDF dari seluruh riwayat server...");
+        const riwayatRef = ref(db, 'riwayat_sawah');
+        const snapshot = await get(riwayatRef);
+        
+        if (snapshot.exists()) {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+
+          // Header Laporan
+          doc.setFontSize(16);
+          doc.text("Laporan Riwayat Pemantauan Sawah (IoT)", 14, 20);
+          doc.setFontSize(11);
+          doc.text("Total Data: " + snapshot.size + " rekaman", 14, 28);
+          doc.text("Waktu Cetak: " + new Date().toLocaleString('id-ID'), 14, 34);
+          
+          const tableData = [];
+          let no = 1;
+          
+          // Susun data ke dalam array PDF
+          snapshot.forEach((childSnapshot) => {
+            const item = childSnapshot.val();
+            tableData.push([
+              no++,
+              item.kelembapan + "%",
+              item.ph,
+              item.nitrogen,
+              item.fosfor,
+              item.kalium,
+              item.rekomendasi
+            ]);
+          });
+
+          // Gambar tabel
+          doc.autoTable({
+            startY: 40,
+            head: [['No', 'Lembab', 'pH', 'N', 'P', 'K', 'Status / Rekomendasi']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: { fillColor: [39, 174, 96] },
+            styles: { fontSize: 8, cellPadding: 2 }
+          });
+
+          doc.save("Riwayat_Lengkap_Sawah_IoT.pdf");
+        } else {
+          alert("Belum ada riwayat data di server!");
+        }
+      } catch (error) {
+        alert("Gagal menyusun PDF: " + error.message);
+      }
+    }
   </script>
 </body>
 </html>
