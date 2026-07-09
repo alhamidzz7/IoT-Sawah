@@ -322,6 +322,16 @@
       signOut(auth);
     };
 
+    // --- FUNGSI RAHASIA: BONGKAR WAKTU DARI ID FIREBASE ---
+    function dapatkanWaktuDariID(id) {
+      const PUSH_CHARS = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
+      let time = 0;
+      for (let i = 0; i < 8; i++) {
+        time = time * 64 + PUSH_CHARS.indexOf(id.charAt(i));
+      }
+      return new Date(time).toLocaleString('id-ID'); // Output: DD/MM/YYYY, HH:MM:SS
+    }
+
     // --- FUNGSI EXPORT KE EXCEL (TARIK DARI RIWAYAT FIREBASE) ---
     window.exportExcel = async function() {
       try {
@@ -335,9 +345,11 @@
           
           snapshot.forEach((childSnapshot) => {
             const item = childSnapshot.val();
+            const waktuPantau = dapatkanWaktuDariID(childSnapshot.key); 
+            
             dataHistory.push({
               "No.": no++,
-              "ID Data Firebase": childSnapshot.key,
+              "Waktu Pantau": waktuPantau,
               "Kelembapan (%)": item.kelembapan,
               "pH Tanah": item.ph,
               "Nitrogen (mg/kg)": item.nitrogen,
@@ -370,19 +382,26 @@
           const { jsPDF } = window.jspdf;
           const doc = new jsPDF();
 
-          doc.setFontSize(16);
-          doc.text("Laporan Riwayat Pemantauan Sawah (IoT)", 14, 20);
-          doc.setFontSize(11);
-          doc.text("Total Data: " + snapshot.size + " rekaman", 14, 28);
-          doc.text("Waktu Cetak: " + new Date().toLocaleString('id-ID'), 14, 34);
+          // Header Laporan
+          doc.setFontSize(14);
+          doc.setFont("helvetica", "bold");
+          doc.text("LAPORAN RIWAYAT KUALITAS TANAH SAWAH", 105, 20, { align: "center" });
+          
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "normal");
+          doc.text("Total Data: " + snapshot.size + " rekaman", 14, 30);
+          doc.text("Waktu Cetak: " + new Date().toLocaleString('id-ID'), 14, 36);
           
           const tableData = [];
           let no = 1;
           
           snapshot.forEach((childSnapshot) => {
             const item = childSnapshot.val();
+            const waktuPantau = dapatkanWaktuDariID(childSnapshot.key);
+            
             tableData.push([
               no++,
+              waktuPantau,
               item.kelembapan + "%",
               item.ph,
               item.nitrogen,
@@ -392,14 +411,30 @@
             ]);
           });
 
+          // Gambar tabel
           doc.autoTable({
-            startY: 40,
-            head: [['No', 'Lembab', 'pH', 'N', 'P', 'K', 'Status / Rekomendasi']],
+            startY: 42,
+            head: [['No', 'Waktu', 'Lembab', 'pH', 'N', 'P', 'K', 'Status Mamdani']],
             body: tableData,
             theme: 'grid',
-            headStyles: { fillColor: [39, 174, 96] },
-            styles: { fontSize: 8, cellPadding: 2 }
+            headStyles: { fillColor: [39, 174, 96], halign: 'center' },
+            styles: { fontSize: 8, cellPadding: 2, valign: 'middle' },
+            columnStyles: { 
+              0: { halign: 'center' }, 
+              2: { halign: 'center' }, 
+              3: { halign: 'center' },
+              4: { halign: 'center' },
+              5: { halign: 'center' },
+              6: { halign: 'center' }
+            }
           });
+
+          // --- TAMBAHAN KOLOM TANDA TANGAN DOSEN ---
+          const finalY = doc.lastAutoTable.finalY || 42; 
+          doc.setFontSize(10);
+          doc.text("Mengetahui,", 140, finalY + 20);
+          doc.text("Dosen Pembimbing,", 140, finalY + 26);
+          doc.text("(.............................................)", 140, finalY + 50);
 
           doc.save("Riwayat_Lengkap_Sawah_IoT.pdf");
         } else {
