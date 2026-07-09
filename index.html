@@ -15,18 +15,17 @@
       --card-bg: #ffffff;
       --text-main: #2c3e50;
       
-      /* Warna Indikator Sesuai Revisi Ahli */
       --warna-biru-optimal: #3498db;
       --warna-kuning-rendah: #f1c40f;
       --warna-merah-tinggi: #e74c3c;
     }
-    /* TOMBOL EXPORT */
+    
     .export-container { 
       display: flex; justify-content: center; align-items: center; gap: 15px;
-      width: 100%; max-width: 450px; margin: 20px auto; 
+      width: 100%; max-width: 450px; margin: 20px auto 10px auto; 
     }
     .btn-export { 
-      min-width: 180px; padding: 12px 20px; border: none; border-radius: 12px;
+      flex: 1; padding: 12px 20px; border: none; border-radius: 12px;
       color: white; font-weight: bold; font-size: 14px; cursor: pointer;
       display: flex; justify-content: center; align-items: center; gap: 8px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s;
@@ -35,13 +34,22 @@
     .btn-excel { background: #27ae60; } 
     .btn-pdf { background: #c0392b; } 
 
+    .btn-reset {
+      width: 100%; max-width: 450px; padding: 12px; border: none; border-radius: 12px;
+      background: #7f8c8d; color: white; font-weight: bold; font-size: 14px; cursor: pointer;
+      display: flex; justify-content: center; align-items: center; gap: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: background 0.3s, transform 0.2s;
+      margin: 0 auto 30px auto;
+    }
+    .btn-reset:hover { background: #d35400; } 
+    .btn-reset:active { transform: scale(0.95); }
+
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
       background-color: var(--bg-color);
       margin: 0; padding: 0; color: var(--text-main);
     }
 
-    /* --- LOGIN SCREEN --- */
     #login-screen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: linear-gradient(135deg, #27ae60, #1e8449);
@@ -63,7 +71,6 @@
     }
     #login-error { color: #e74c3c; font-size: 13px; margin-top: 10px; display: none; }
 
-    /* --- DASHBOARD --- */
     #dashboard {
       display: none; padding: 20px 15px; flex-direction: column; align-items: center;
     }
@@ -184,6 +191,9 @@
         <i class="fa-solid fa-file-pdf"></i> Export PDF
       </button>
     </div>
+    <button class="btn-reset" onclick="hapusRiwayat()">
+      <i class="fa-solid fa-trash-can"></i> Reset & Hapus Semua Riwayat Data
+    </button>
   </div>
 
   <script>
@@ -203,6 +213,7 @@
     const loginScreen = document.getElementById('login-screen');
     const dashboard = document.getElementById('dashboard');
 
+    // --- DI SINI PERBAIKAN BATAS UI FUZZY NYA ---
     window.updateCard = function(cardId, statId, val, tipe) {
       const card = document.getElementById(cardId);
       const stat = document.getElementById(statId);
@@ -210,18 +221,18 @@
       let teksKondisi = "";
 
       if (tipe === "kelembapan") {
-        if (val <= 60) { card.classList.add("status-rendah"); teksKondisi = "Kering"; }
-        else if (val > 60 && val < 80) { card.classList.add("status-optimal"); teksKondisi = "Lembab / Optimal"; }
+        if (val < 65) { card.classList.add("status-rendah"); teksKondisi = "Kering"; }
+        else if (val >= 65 && val < 75) { card.classList.add("status-optimal"); teksKondisi = "Lembab / Optimal"; }
         else { card.classList.add("status-tinggi"); teksKondisi = "Tergenang"; }
       }
       else if (tipe === "ph") {
-        if (val < 5.5) { card.classList.add("status-rendah"); teksKondisi = "Asam"; }
-        else if (val >= 5.5 && val <= 6.5) { card.classList.add("status-optimal"); teksKondisi = "Optimal"; }
+        if (val < 5.75) { card.classList.add("status-rendah"); teksKondisi = "Asam"; }
+        else if (val >= 5.75 && val < 6.25) { card.classList.add("status-optimal"); teksKondisi = "Optimal"; }
         else { card.classList.add("status-tinggi"); teksKondisi = "Basa"; }
       }
       else if (tipe === "npk") {
-        if (val < 150) { card.classList.add("status-rendah"); teksKondisi = "Hara Rendah"; }
-        else if (val >= 150 && val < 300) { card.classList.add("status-optimal"); teksKondisi = "Hara Optimal"; }
+        if (val < 180) { card.classList.add("status-rendah"); teksKondisi = "Hara Rendah"; }
+        else if (val >= 180 && val < 262.5) { card.classList.add("status-optimal"); teksKondisi = "Hara Optimal"; }
         else { card.classList.add("status-tinggi"); teksKondisi = "Hara Tinggi"; }
       }
       stat.innerText = teksKondisi;
@@ -268,7 +279,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -322,17 +333,15 @@
       signOut(auth);
     };
 
-    // --- FUNGSI RAHASIA: BONGKAR WAKTU DARI ID FIREBASE ---
     function dapatkanWaktuDariID(id) {
       const PUSH_CHARS = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
       let time = 0;
       for (let i = 0; i < 8; i++) {
         time = time * 64 + PUSH_CHARS.indexOf(id.charAt(i));
       }
-      return new Date(time).toLocaleString('id-ID'); // Output: DD/MM/YYYY, HH:MM:SS
+      return new Date(time).toLocaleString('id-ID'); 
     }
 
-    // --- FUNGSI EXPORT KE EXCEL (TARIK DARI RIWAYAT FIREBASE) ---
     window.exportExcel = async function() {
       try {
         alert("Sedang mengambil seluruh riwayat data dari server, mohon tunggu...");
@@ -371,7 +380,6 @@
       }
     }
 
-    // --- FUNGSI EXPORT KE PDF (TARIK DARI RIWAYAT FIREBASE) ---
     window.exportPDF = async function() {
       try {
         alert("Sedang menyusun PDF dari seluruh riwayat server...");
@@ -382,7 +390,6 @@
           const { jsPDF } = window.jspdf;
           const doc = new jsPDF();
 
-          // Header Laporan
           doc.setFontSize(14);
           doc.setFont("helvetica", "bold");
           doc.text("LAPORAN RIWAYAT KUALITAS TANAH SAWAH", 105, 20, { align: "center" });
@@ -411,7 +418,6 @@
             ]);
           });
 
-          // Gambar tabel
           doc.autoTable({
             startY: 42,
             head: [['No', 'Waktu', 'Lembab', 'pH', 'N', 'P', 'K', 'Status Mamdani']],
@@ -429,7 +435,6 @@
             }
           });
 
-          // --- TAMBAHAN KOLOM TANDA TANGAN DOSEN ---
           const finalY = doc.lastAutoTable.finalY || 42; 
           doc.setFontSize(10);
           doc.text("Mengetahui,", 140, finalY + 20);
@@ -442,6 +447,22 @@
         }
       } catch (error) {
         alert("Gagal menyusun PDF: " + error.message);
+      }
+    }
+
+    window.hapusRiwayat = async function() {
+      const konfirmasi1 = confirm("APAKAH LO YAKIN?\nTindakan ini akan menghapus permanen SELURUH data riwayat monitoring di Firebase.");
+      if (konfirmasi1) {
+        const konfirmasi2 = confirm("KONFIRMASI AKHIR:\nData yang dihapus tidak bisa dikembalikan lagi untuk lampiran laporan skripsi lo. Tetap hapus?");
+        if (konfirmasi2) {
+          try {
+            const riwayatRef = ref(db, 'riwayat_sawah');
+            await remove(riwayatRef); 
+            alert("Sukses! Database '/riwayat_sawah' berhasil di-reset menjadi kosong.");
+          } catch (error) {
+            alert("Gagal menghapus database: " + error.message);
+          }
+        }
       }
     }
   </script>
