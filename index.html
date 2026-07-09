@@ -138,7 +138,7 @@
     </div>
 
     <div id="offline-banner">
-      <i class="fa-solid fa-triangle-exclamation"></i> Sekarang sedang menampilkan data yang terakhir, online-kan kembali jika ingin mendapatkan data terbaru.
+      <i class="fa-solid fa-triangle-exclamation"></i> Menampilkan data terakhir. Online-kan kembali untuk update data.
     </div>
 
     <div class="grid-container">
@@ -213,26 +213,26 @@
     const loginScreen = document.getElementById('login-screen');
     const dashboard = document.getElementById('dashboard');
 
-    // --- DI SINI PERBAIKAN BATAS UI FUZZY NYA ---
     window.updateCard = function(cardId, statId, val, tipe) {
       const card = document.getElementById(cardId);
       const stat = document.getElementById(statId);
       card.className = "card"; 
       let teksKondisi = "";
 
+      // --- LOGIKA BATAS UI TERBARU ---
       if (tipe === "kelembapan") {
-        if (val < 65) { card.classList.add("status-rendah"); teksKondisi = "Kering"; }
-        else if (val >= 65 && val < 75) { card.classList.add("status-optimal"); teksKondisi = "Lembab / Optimal"; }
-        else { card.classList.add("status-tinggi"); teksKondisi = "Tergenang"; }
+        if (val < 65) { card.classList.add("status-tinggi"); teksKondisi = "Kering (Bahaya)"; }
+        else if (val >= 65 && val < 75) { card.classList.add("status-rendah"); teksKondisi = "Lembab (Macak)"; }
+        else { card.classList.add("status-optimal"); teksKondisi = "Tergenang / Optimal"; }
       }
       else if (tipe === "ph") {
         if (val < 5.75) { card.classList.add("status-rendah"); teksKondisi = "Asam"; }
-        else if (val >= 5.75 && val < 6.25) { card.classList.add("status-optimal"); teksKondisi = "Optimal"; }
+        else if (val >= 5.75 && val <= 7.25) { card.classList.add("status-optimal"); teksKondisi = "Optimal"; }
         else { card.classList.add("status-tinggi"); teksKondisi = "Basa"; }
       }
       else if (tipe === "npk") {
-        if (val < 180) { card.classList.add("status-rendah"); teksKondisi = "Hara Rendah"; }
-        else if (val >= 180 && val < 262.5) { card.classList.add("status-optimal"); teksKondisi = "Hara Optimal"; }
+        if (val < 125) { card.classList.add("status-rendah"); teksKondisi = "Hara Rendah"; }
+        else if (val >= 125 && val <= 175) { card.classList.add("status-optimal"); teksKondisi = "Hara Optimal"; }
         else { card.classList.add("status-tinggi"); teksKondisi = "Hara Tinggi"; }
       }
       stat.innerText = teksKondisi;
@@ -250,9 +250,9 @@
           const rekCard = document.getElementById('card-rekomendasi');
           const txt = data.rekomendasi.toLowerCase();
           
-          if (txt.includes("kritis") || txt.includes("tindakan")) {
+          if (txt.includes("kritis")) {
             rekCard.style.background = "linear-gradient(135deg, var(--warna-merah-tinggi), #c0392b)";
-          } else if (txt.includes("aman") || txt.includes("optimal")) {
+          } else if (txt.includes("sempurna") || txt.includes("aksi optimal")) {
             rekCard.style.background = "linear-gradient(135deg, var(--warna-biru-optimal), #2980b9)";
           } else if (txt.includes("waspada") || txt.includes("perhatian") || txt.includes("perbaikan") || txt.includes("pantau")) {
             rekCard.style.background = "linear-gradient(135deg, var(--warna-kuning-rendah), #d35400)";
