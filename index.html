@@ -5,73 +5,466 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Farming</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body { font-family: sans-serif; background: #f0f4f1; padding: 20px; display: flex; justify-content: center; }
-    .container { width: 100%; max-width: 450px; }
-    .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 12px; text-align: center; border-top: 5px solid #ccc; }
-    .btn-action { width: 100%; padding: 15px; border: none; border-radius: 8px; margin-top: 10px; color: white; font-weight: bold; cursor: pointer; }
+    :root {
+      --bg-color: #f0f4f1;
+      --card-bg: #ffffff;
+      --text-main: #2c3e50;
+      
+      --warna-biru-optimal: #3498db;
+      --warna-kuning-rendah: #f1c40f;
+      --warna-merah-tinggi: #e74c3c;
+    }
+    
+    .export-container { 
+      display: flex; justify-content: center; align-items: center; gap: 15px;
+      width: 100%; max-width: 450px; margin: 20px auto 10px auto; 
+    }
+    .btn-export { 
+      flex: 1; padding: 12px 20px; border: none; border-radius: 12px;
+      color: white; font-weight: bold; font-size: 14px; cursor: pointer;
+      display: flex; justify-content: center; align-items: center; gap: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s;
+    }
+    .btn-export:active { transform: scale(0.95); }
+    .btn-excel { background: #27ae60; } 
+    .btn-pdf { background: #c0392b; } 
+
+    .btn-reset {
+      width: 100%; max-width: 450px; padding: 12px; border: none; border-radius: 12px;
+      background: #7f8c8d; color: white; font-weight: bold; font-size: 14px; cursor: pointer;
+      display: flex; justify-content: center; align-items: center; gap: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: background 0.3s, transform 0.2s;
+      margin: 0 auto 30px auto;
+    }
+    .btn-reset:hover { background: #d35400; } 
+    .btn-reset:active { transform: scale(0.95); }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background-color: var(--bg-color);
+      margin: 0; padding: 0; color: var(--text-main);
+    }
+
+    #login-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, #27ae60, #1e8449);
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      z-index: 1000;
+    }
+    .login-box {
+      background: white; padding: 30px; border-radius: 15px; width: 85%; max-width: 350px;
+      text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    .login-box h2 { margin-top: 0; color: #27ae60; }
+    .login-box input {
+      width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd;
+      border-radius: 8px; box-sizing: border-box;
+    }
+    .login-box button {
+      width: 100%; padding: 12px; background: #27ae60; color: white;
+      border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer;
+    }
+    #login-error { color: #e74c3c; font-size: 13px; margin-top: 10px; display: none; }
+
+    #dashboard {
+      display: none; padding: 20px 15px; flex-direction: column; align-items: center;
+    }
+    
+    .header { text-align: center; margin-bottom: 20px; width: 100%; max-width: 450px; position: relative;}
+    .header h1 { color: #1e8449; margin: 0; font-size: 24px; font-weight: 800; }
+    .logout-btn { position: absolute; top: 0; right: 0; background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+
+    #offline-banner {
+      display: none; background: #f39c12; color: white; padding: 12px;
+      border-radius: 8px; font-size: 13px; font-weight: bold; text-align: center;
+      margin-bottom: 15px; width: 100%; max-width: 450px; box-sizing: border-box;
+    }
+
+    .grid-container {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 450px;
+    }
+
+    .card {
+      background: var(--card-bg); padding: 15px; border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-align: center;
+      border-top: 5px solid #ccc; transition: all 0.3s ease;
+    }
+    .card-icon { font-size: 20px; margin-bottom: 5px; color: #7f8c8d; }
+    .card-title { font-size: 12px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; }
+    .card-value { font-size: 24px; font-weight: 800; margin-top: 5px; }
+    .card-status { font-size: 13px; font-weight: 700; margin-top: 5px; padding: 3px 8px; border-radius: 12px; display: inline-block;}
+
+    .status-optimal { border-top-color: var(--warna-biru-optimal); }
+    .status-optimal .card-icon { color: var(--warna-biru-optimal); }
+    .status-optimal .card-status { background: #e0f7fa; color: var(--warna-biru-optimal); }
+
+    .status-rendah { border-top-color: var(--warna-kuning-rendah); }
+    .status-rendah .card-icon { color: var(--warna-kuning-rendah); }
+    .status-rendah .card-status { background: #fef9e7; color: #d4ac0d; }
+
+    .status-tinggi { border-top-color: var(--warna-merah-tinggi); }
+    .status-tinggi .card-icon { color: var(--warna-merah-tinggi); }
+    .status-tinggi .card-status { background: #fdedec; color: var(--warna-merah-tinggi); }
+
+    .rekomendasi-card {
+      background: #7f8c8d; color: white; margin-top: 20px; width: 100%; max-width: 450px;
+      padding: 20px; border-radius: 15px; text-align: center; box-sizing: border-box;
+      transition: background 0.5s ease; box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body>
 
-  <div id="login-layer" style="width:100%; max-width:450px;">
-    <h2>Login Petani</h2>
-    <input type="password" id="pass-input" placeholder="Masukkan Password" style="width:100%; padding:10px;">
-    <button class="btn-action" style="background:#27ae60" onclick="cekLogin()">Masuk</button>
+  <div id="login-screen">
+    <div class="login-box">
+      <h2>Smart Farming</h2>
+      <p>Silakan login untuk akses data</p>
+      <input type="email" id="email" placeholder="Email Petani">
+      <input type="password" id="password" placeholder="Password">
+      <button onclick="login()">Masuk</button>
+      <div id="login-error">Email atau password salah!</div>
+    </div>
   </div>
 
-  <div id="dashboard-layer" style="display:none; width:100%; max-width:450px;">
-    <h1>Smart Farming</h1>
-    <div id="grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-      <div class="card" id="card-ph">pH: <span id="val-ph">--</span><div id="stat-ph">--</div></div>
-      <div class="card" id="card-lembap">Lembap: <span id="val-kelembapan">--</span>%<div id="stat-kelembapan">--</div></div>
+  <div id="dashboard">
+    <div class="header">
+      <h1>Smart Farming</h1>
+      <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-power-off"></i></button>
     </div>
-    <button class="btn-action" style="background:#c0392b" onclick="logout()">Logout</button>
-    <button class="btn-action" style="background:#27ae60" onclick="exportPDF()">Export PDF</button>
+
+    <div id="offline-banner">
+      <i class="fa-solid fa-triangle-exclamation"></i> Menampilkan data terakhir. Online-kan kembali untuk update data.
+    </div>
+
+    <div class="grid-container">
+      <div class="card" id="card-kelembapan">
+        <div class="card-icon"><i class="fa-solid fa-droplet"></i></div>
+        <div class="card-title">Kelembapan</div>
+        <div class="card-value"><span id="val-kelembapan">--</span>%</div>
+        <div class="card-status" id="stat-kelembapan">Memuat...</div>
+      </div>
+      
+      <div class="card" id="card-ph">
+        <div class="card-icon"><i class="fa-solid fa-flask"></i></div>
+        <div class="card-title">pH Tanah</div>
+        <div class="card-value"><span id="val-ph">--</span></div>
+        <div class="card-status" id="stat-ph">Memuat...</div>
+      </div>
+      
+      <div class="card" id="card-n">
+        <div class="card-icon"><i class="fa-solid fa-seedling"></i></div>
+        <div class="card-title">Nitrogen (N)</div>
+        <div class="card-value"><span id="val-n">--</span></div>
+        <div class="card-status" id="stat-n">Memuat...</div>
+      </div>
+      
+      <div class="card" id="card-p">
+        <div class="card-icon"><i class="fa-solid fa-leaf"></i></div>
+        <div class="card-title">Fosfor (P)</div>
+        <div class="card-value"><span id="val-p">--</span></div>
+        <div class="card-status" id="stat-p">Memuat...</div>
+      </div>
+      
+      <div class="card" id="card-k" style="grid-column: span 2;">
+        <div class="card-icon"><i class="fa-solid fa-tree"></i></div>
+        <div class="card-title">Kalium (K)</div>
+        <div class="card-value"><span id="val-k">--</span></div>
+        <div class="card-status" id="stat-k">Memuat...</div>
+      </div>
+    </div>
+
+    <div class="rekomendasi-card" id="card-rekomendasi">
+      <div style="font-size:12px; font-weight:bold; margin-bottom:10px;"><i class="fa-solid fa-robot"></i> REKOMENDASI OPTIMASI</div>
+      <div id="val-rekomendasi" style="font-size:16px; font-weight:bold; line-height: 1.4;">Menunggu sinkronisasi...</div>
+    </div>
+    
+    <div class="export-container">
+      <button class="btn-export btn-excel" onclick="exportExcel()">
+        <i class="fa-solid fa-file-excel"></i> Export Excel
+      </button>
+      <button class="btn-export btn-pdf" onclick="exportPDF()">
+        <i class="fa-solid fa-file-pdf"></i> Export PDF
+      </button>
+    </div>
+    <button class="btn-reset" onclick="hapusRiwayat()">
+      <i class="fa-solid fa-trash-can"></i> Reset & Hapus Semua Riwayat Data
+    </button>
   </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log("Service Worker Registered"))
+        .catch(err => console.log("Service Worker Failed", err));
+    }
+  </script>
+
+  <script>
+    const offlineBanner = document.getElementById('offline-banner');
+    window.addEventListener('offline', () => { offlineBanner.style.display = 'block'; });
+    window.addEventListener('online', () => { offlineBanner.style.display = 'none'; });
+    if (!navigator.onLine) { offlineBanner.style.display = 'block'; }
+
+    const loginScreen = document.getElementById('login-screen');
+    const dashboard = document.getElementById('dashboard');
+
+    window.updateCard = function(cardId, statId, val, tipe) {
+      const card = document.getElementById(cardId);
+      const stat = document.getElementById(statId);
+      card.className = "card"; 
+      let teksKondisi = "";
+
+      // --- LOGIKA BATAS UI TERBARU ---
+      if (tipe === "kelembapan") {
+        if (val < 65) { card.classList.add("status-tinggi"); teksKondisi = "Kering (Bahaya)"; }
+        else if (val >= 65 && val < 75) { card.classList.add("status-rendah"); teksKondisi = "Lembab (Macak)"; }
+        else { card.classList.add("status-optimal"); teksKondisi = "Tergenang / Optimal"; }
+      }
+      else if (tipe === "ph") {
+        if (val < 5.75) { card.classList.add("status-rendah"); teksKondisi = "Asam"; }
+        else if (val >= 5.75 && val <= 7.25) { card.classList.add("status-optimal"); teksKondisi = "Optimal"; }
+        else { card.classList.add("status-tinggi"); teksKondisi = "Basa"; }
+      }
+      else if (tipe === "npk") {
+        if (val < 125) { card.classList.add("status-rendah"); teksKondisi = "Hara Rendah"; }
+        else if (val >= 125 && val <= 175) { card.classList.add("status-optimal"); teksKondisi = "Hara Optimal"; }
+        else { card.classList.add("status-tinggi"); teksKondisi = "Hara Tinggi"; }
+      }
+      stat.innerText = teksKondisi;
+    }
+
+    window.renderDataKeLayar = function(data) {
+        document.getElementById('val-kelembapan').innerText = data.kelembapan;
+        document.getElementById('val-ph').innerText = data.ph;
+        document.getElementById('val-n').innerText = data.nitrogen;
+        document.getElementById('val-p').innerText = data.fosfor;
+        document.getElementById('val-k').innerText = data.kalium;
+        
+        if(data.rekomendasi) {
+          document.getElementById('val-rekomendasi').innerText = data.rekomendasi;
+          const rekCard = document.getElementById('card-rekomendasi');
+          const txt = data.rekomendasi.toLowerCase();
+          
+          if (txt.includes("kritis")) {
+            rekCard.style.background = "linear-gradient(135deg, var(--warna-merah-tinggi), #c0392b)";
+          } else if (txt.includes("sempurna") || txt.includes("aksi optimal")) {
+            rekCard.style.background = "linear-gradient(135deg, var(--warna-biru-optimal), #2980b9)";
+          } else if (txt.includes("waspada") || txt.includes("perhatian") || txt.includes("perbaikan") || txt.includes("pantau")) {
+            rekCard.style.background = "linear-gradient(135deg, var(--warna-kuning-rendah), #d35400)";
+          } else {
+            rekCard.style.background = "#7f8c8d";
+          }
+        }
+
+        window.updateCard("card-kelembapan", "stat-kelembapan", data.kelembapan, "kelembapan");
+        window.updateCard("card-ph", "stat-ph", data.ph, "ph");
+        window.updateCard("card-n", "stat-n", data.nitrogen, "npk");
+        window.updateCard("card-p", "stat-p", data.fosfor, "npk");
+        window.updateCard("card-k", "stat-k", data.kalium, "npk");
+    }
+
+    const dataTersimpan = localStorage.getItem('dataSawahTerakhir');
+    const statusLogin = localStorage.getItem('sawahStatusLogin');
+    if (!navigator.onLine && statusLogin === 'true') {
+        loginScreen.style.display = "none";
+        dashboard.style.display = "flex";
+        if (dataTersimpan) { window.renderDataKeLayar(JSON.parse(dataTersimpan)); }
+    }
+  </script>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    
-    const db = getDatabase(initializeApp({ databaseURL: "https://sawah-esp32-default-rtdb.asia-southeast1.firebasedatabase.app" }));
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // --- FITUR LOGIN LOKAL ---
-    window.cekLogin = () => {
-      const pass = document.getElementById('pass-input').value;
-      if (pass === "12345") { // Ganti password sesuai keinginan lo
-        document.getElementById('login-layer').style.display = 'none';
-        document.getElementById('dashboard-layer').style.display = 'block';
-        localStorage.setItem('isLoggedIn', 'true');
-      } else {
-        alert("Password Salah!");
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2wtVXwHfeDO0QZH5jTN1FofH9496uzSs",
+      authDomain: "sawah-esp32.firebaseapp.com",
+      databaseURL: "https://sawah-esp32-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "sawah-esp32",
+      storageBucket: "sawah-esp32.firebasestorage.app",
+      messagingSenderId: "510872596701",
+      appId: "1:510872596701:web:bd7ffa7b87e6983a2fab34"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    const sawahRef = ref(db, 'kondisi_sawah');
+
+    onValue(sawahRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        localStorage.setItem('dataSawahTerakhir', JSON.stringify(data));
+        window.renderDataKeLayar(data);
       }
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        localStorage.setItem('sawahStatusLogin', 'true');
+        document.getElementById('login-screen').style.display = "none";
+        document.getElementById('dashboard').style.display = "flex";
+        
+        const dataTersimpan = localStorage.getItem('dataSawahTerakhir');
+        if (dataTersimpan) { window.renderDataKeLayar(JSON.parse(dataTersimpan)); }
+      } else {
+        localStorage.setItem('sawahStatusLogin', 'false');
+        document.getElementById('login-screen').style.display = "flex";
+        document.getElementById('dashboard').style.display = "none";
+      }
+    });
+
+    window.login = () => {
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      signInWithEmailAndPassword(auth, email, pass).catch(() => {
+        document.getElementById('login-error').style.display = "block";
+      });
     };
 
     window.logout = () => {
-      localStorage.removeItem('isLoggedIn');
-      location.reload();
+      localStorage.setItem('sawahStatusLogin', 'false');
+      signOut(auth);
     };
 
-    // Auto-login kalau udah pernah masuk
-    if (localStorage.getItem('isLoggedIn') === 'true') {
-      document.getElementById('login-layer').style.display = 'none';
-      document.getElementById('dashboard-layer').style.display = 'block';
+    function dapatkanWaktuDariID(id) {
+      const PUSH_CHARS = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
+      let time = 0;
+      for (let i = 0; i < 8; i++) {
+        time = time * 64 + PUSH_CHARS.indexOf(id.charAt(i));
+      }
+      return new Date(time).toLocaleString('id-ID'); 
     }
 
-    // --- LOGIKA SENSOR (pH 6-7 = Optimal) ---
-    onValue(ref(db, 'kondisi_sawah'), (snap) => {
-      const d = snap.val();
-      if (!d) return;
-      document.getElementById('val-ph').innerText = d.ph;
-      const stat = document.getElementById('stat-ph');
-      
-      // LOGIKA YANG LO MAU
-      if (d.ph < 6.0) { stat.innerText = "Asam"; stat.style.color = "orange"; }
-      else if (d.ph <= 7.0) { stat.innerText = "Optimal"; stat.style.color = "blue"; }
-      else { stat.innerText = "Basa"; stat.style.color = "red"; }
-    });
+    window.exportExcel = async function() {
+      try {
+        alert("Sedang mengambil seluruh riwayat data dari server, mohon tunggu...");
+        const riwayatRef = ref(db, 'riwayat_sawah');
+        const snapshot = await get(riwayatRef);
+        
+        if (snapshot.exists()) {
+          const dataHistory = [];
+          let no = 1;
+          
+          snapshot.forEach((childSnapshot) => {
+            const item = childSnapshot.val();
+            const waktuPantau = dapatkanWaktuDariID(childSnapshot.key); 
+            
+            dataHistory.push({
+              "No.": no++,
+              "Waktu Pantau": waktuPantau,
+              "Kelembapan (%)": item.kelembapan,
+              "pH Tanah": item.ph,
+              "Nitrogen (mg/kg)": item.nitrogen,
+              "Fosfor (mg/kg)": item.fosfor,
+              "Kalium (mg/kg)": item.kalium,
+              "Rekomendasi Mamdani": item.rekomendasi
+            });
+          });
+
+          const ws = XLSX.utils.json_to_sheet(dataHistory);
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Riwayat Sawah");
+          XLSX.writeFile(wb, "Riwayat_Lengkap_Sawah_IoT.xlsx");
+        } else {
+          alert("Belum ada riwayat data di server!");
+        }
+      } catch (error) {
+        alert("Gagal mengambil data: " + error.message);
+      }
+    }
+
+    window.exportPDF = async function() {
+      try {
+        alert("Sedang menyusun PDF dari seluruh riwayat server...");
+        const riwayatRef = ref(db, 'riwayat_sawah');
+        const snapshot = await get(riwayatRef);
+        
+        if (snapshot.exists()) {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+
+          doc.setFontSize(14);
+          doc.setFont("helvetica", "bold");
+          doc.text("LAPORAN RIWAYAT KUALITAS TANAH SAWAH", 105, 20, { align: "center" });
+          
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "normal");
+          doc.text("Total Data: " + snapshot.size + " rekaman", 14, 30);
+          doc.text("Waktu Cetak: " + new Date().toLocaleString('id-ID'), 14, 36);
+          
+          const tableData = [];
+          let no = 1;
+          
+          snapshot.forEach((childSnapshot) => {
+            const item = childSnapshot.val();
+            const waktuPantau = dapatkanWaktuDariID(childSnapshot.key);
+            
+            tableData.push([
+              no++,
+              waktuPantau,
+              item.kelembapan + "%",
+              item.ph,
+              item.nitrogen,
+              item.fosfor,
+              item.kalium,
+              item.rekomendasi
+            ]);
+          });
+
+          doc.autoTable({
+            startY: 42,
+            head: [['No', 'Waktu', 'Lembab', 'pH', 'N', 'P', 'K', 'Status Mamdani']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: { fillColor: [39, 174, 96], halign: 'center' },
+            styles: { fontSize: 8, cellPadding: 2, valign: 'middle' },
+            columnStyles: { 
+              0: { halign: 'center' }, 
+              2: { halign: 'center' }, 
+              3: { halign: 'center' },
+              4: { halign: 'center' },
+              5: { halign: 'center' },
+              6: { halign: 'center' }
+            }
+          });
+
+          const finalY = doc.lastAutoTable.finalY || 42; 
+          doc.setFontSize(10);
+          doc.text("Mengetahui,", 140, finalY + 20);
+          doc.text("Dosen Pembimbing,", 140, finalY + 26);
+          doc.text("(.............................................)", 140, finalY + 50);
+
+          doc.save("Riwayat_Lengkap_Sawah_IoT.pdf");
+        } else {
+          alert("Belum ada riwayat data di server!");
+        }
+      } catch (error) {
+        alert("Gagal menyusun PDF: " + error.message);
+      }
+    }
+
+    window.hapusRiwayat = async function() {
+      const konfirmasi1 = confirm("APAKAH LO YAKIN?\nTindakan ini akan menghapus permanen SELURUH data riwayat monitoring di Firebase.");
+      if (konfirmasi1) {
+        const konfirmasi2 = confirm("KONFIRMASI AKHIR:\nData yang dihapus tidak bisa dikembalikan lagi untuk lampiran laporan skripsi lo. Tetap hapus?");
+        if (konfirmasi2) {
+          try {
+            const riwayatRef = ref(db, 'riwayat_sawah');
+            await remove(riwayatRef); 
+            alert("Sukses! Database '/riwayat_sawah' berhasil di-reset menjadi kosong.");
+          } catch (error) {
+            alert("Gagal menghapus database: " + error.message);
+          }
+        }
+      }
+    }
   </script>
 </body>
 </html>
