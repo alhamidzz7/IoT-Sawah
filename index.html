@@ -7,97 +7,113 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Farming</title>
-  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --bg-color: #f0f4f1;
-      --card-bg: #ffffff;
-      --text-main: #2c3e50;
-      --warna-biru-optimal: #3498db;
-      --warna-kuning-rendah: #f1c40f;
-      --warna-merah-tinggi: #e74c3c;
-    }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; color: var(--text-main); display: flex; flex-direction: column; align-items: center; }
+    :root { --bg-color: #f0f4f1; --card-bg: #ffffff; --warna-biru: #3498db; --warna-kuning: #f1c40f; --warna-merah: #e74c3c; }
+    body { font-family: sans-serif; background-color: var(--bg-color); padding: 20px; display: flex; flex-direction: column; align-items: center; }
     .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 450px; }
-    .card { background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-align: center; border-top: 5px solid #ccc; transition: all 0.3s ease; }
+    .card { background: var(--card-bg); padding: 15px; border-radius: 12px; border-top: 5px solid #ccc; text-align: center; }
     .card-value { font-size: 24px; font-weight: 800; margin-top: 5px; }
-    .card-status { font-size: 13px; font-weight: 700; margin-top: 5px; padding: 3px 8px; border-radius: 12px; display: inline-block;}
-    .status-optimal { border-top-color: var(--warna-biru-optimal); }
-    .status-optimal .card-status { background: #e0f7fa; color: var(--warna-biru-optimal); }
-    .status-rendah { border-top-color: var(--warna-kuning-rendah); }
-    .status-rendah .card-status { background: #fef9e7; color: #d4ac0d; }
-    .status-tinggi { border-top-color: var(--warna-merah-tinggi); }
-    .status-tinggi .card-status { background: #fdedec; color: var(--warna-merah-tinggi); }
-    .rekomendasi-card { background: #7f8c8d; color: white; margin-top: 20px; width: 100%; max-width: 450px; padding: 20px; border-radius: 15px; text-align: center; }
+    .card-status { font-size: 13px; font-weight: 700; margin-top: 5px; padding: 3px 8px; border-radius: 12px; display: inline-block; }
+    .status-optimal { border-top-color: var(--warna-biru); } .status-optimal .card-status { background: #e0f7fa; color: var(--warna-biru); }
+    .status-rendah { border-top-color: var(--warna-kuning); } .status-rendah .card-status { background: #fef9e7; color: #d4ac0d; }
+    .status-tinggi { border-top-color: var(--warna-merah); } .status-tinggi .card-status { background: #fdedec; color: var(--warna-merah); }
+    
+    /* Card Rekomendasi yang bisa berubah warna */
+    #card-rekomendasi { 
+        width: 100%; max-width: 450px; margin-top: 20px; padding: 20px; 
+        border-radius: 15px; text-align: center; color: white; font-weight: bold;
+        transition: background 0.5s ease;
+    }
+    .btn-container { display: flex; gap: 10px; width: 100%; max-width: 450px; margin-top: 20px; }
+    button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <div id="dashboard">
-    <div class="grid-container">
-      <div class="card" id="card-kelembapan">
-        <div class="card-title">Kelembapan</div>
-        <div class="card-value"><span id="val-kelembapan">--</span>%</div>
-        <div class="card-status" id="stat-kelembapan">Memuat...</div>
-      </div>
-      <div class="card" id="card-ph">
-        <div class="card-title">pH Tanah</div>
-        <div class="card-value"><span id="val-ph">--</span></div>
-        <div class="card-status" id="stat-ph">Memuat...</div>
-      </div>
-      <div class="card" id="card-n"><div class="card-title">Nitrogen</div><div class="card-value"><span id="val-n">--</span></div><div class="card-status" id="stat-n">--</div></div>
-      <div class="card" id="card-p"><div class="card-title">Fosfor</div><div class="card-value"><span id="val-p">--</span></div><div class="card-status" id="stat-p">--</div></div>
-      <div class="card" id="card-k" style="grid-column: span 2;"><div class="card-title">Kalium</div><div class="card-value"><span id="val-k">--</span></div><div class="card-status" id="stat-k">--</div></div>
-    </div>
-    <div class="rekomendasi-card" id="card-rekomendasi"><div id="val-rekomendasi">Menunggu data...</div></div>
+  <div class="grid-container">
+    <div class="card" id="card-kelembapan"><div class="card-value"><span id="val-kelembapan">--</span>%</div><div class="card-status" id="stat-kelembapan">Memuat...</div></div>
+    <div class="card" id="card-ph"><div class="card-value"><span id="val-ph">--</span></div><div class="card-status" id="stat-ph">Memuat...</div></div>
+    <div class="card" id="card-n"><div class="card-value"><span id="val-n">--</span></div><div class="card-status" id="stat-n">--</div></div>
+    <div class="card" id="card-p"><div class="card-value"><span id="val-p">--</span></div><div class="card-status" id="stat-p">--</div></div>
+    <div class="card" id="card-k" style="grid-column: span 2;"><div class="card-value"><span id="val-k">--</span></div><div class="card-status" id="stat-k">--</div></div>
   </div>
+
+  <div id="card-rekomendasi">Menunggu data...</div>
+
+  <div class="btn-container">
+    <button style="background:#27ae60" onclick="exportExcel()">Export Excel</button>
+    <button style="background:#c0392b" onclick="exportPDF()">Export PDF</button>
+  </div>
+  <button style="background:#7f8c8d; width:100%; max-width:450px; margin-top:10px;" onclick="hapusRiwayat()">Reset Data</button>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     
-    const app = initializeApp({ databaseURL: "https://sawah-esp32-default-rtdb.asia-southeast1.firebasedatabase.app" });
-    const db = getDatabase(app);
-
-    window.updateCard = function(cardId, statId, val, tipe) {
-      const card = document.getElementById(cardId);
-      const stat = document.getElementById(statId);
-      card.className = "card"; 
-      
-      if (tipe === "kelembapan") {
-        if (val < 65) { card.classList.add("status-tinggi"); stat.innerText = "Kering"; }
-        else if (val < 80) { card.classList.add("status-rendah"); stat.innerText = "Lembab"; }
-        else { card.classList.add("status-optimal"); stat.innerText = "Optimal"; }
-      }
-      else if (tipe === "ph") {
-        if (val < 5.75) { card.classList.add("status-rendah"); stat.innerText = "Asam"; }
-        else if (val <= 7.25) { card.classList.add("status-optimal"); stat.innerText = "Optimal"; }
-        else { card.classList.add("status-tinggi"); stat.innerText = "Basa"; }
-      }
-      else if (tipe === "npk") {
-        if (val < 125) { card.classList.add("status-rendah"); stat.innerText = "Hara Rendah"; }
-        else if (val <= 175) { card.classList.add("status-optimal"); stat.innerText = "Hara Optimal"; }
-        else { card.classList.add("status-tinggi"); stat.innerText = "Hara Tinggi"; }
-      }
-    }
-
-    onValue(ref(db, 'kondisi_sawah'), (snapshot) => {
-      const d = snapshot.val();
-      if (!d) return;
+    const db = getDatabase(initializeApp({ databaseURL: "https://sawah-esp32-default-rtdb.asia-southeast1.firebasedatabase.app" }));
+    
+    const updateUI = (d) => {
       document.getElementById('val-kelembapan').innerText = d.kelembapan;
       document.getElementById('val-ph').innerText = d.ph;
       document.getElementById('val-n').innerText = d.nitrogen;
       document.getElementById('val-p').innerText = d.fosfor;
       document.getElementById('val-k').innerText = d.kalium;
-      document.getElementById('val-rekomendasi').innerText = d.rekomendasi;
+      
+      // Update Rekomendasi & Warna
+      const rekCard = document.getElementById('card-rekomendasi');
+      rekCard.innerText = d.rekomendasi;
+      const t = d.rekomendasi.toLowerCase();
+      if (t.includes("kritis")) rekCard.style.background = "#e74c3c";
+      else if (t.includes("sempurna")) rekCard.style.background = "#3498db";
+      else rekCard.style.background = "#f1c40f";
 
+      // Update Card Status
       updateCard("card-kelembapan", "stat-kelembapan", d.kelembapan, "kelembapan");
       updateCard("card-ph", "stat-ph", d.ph, "ph");
       updateCard("card-n", "stat-n", d.nitrogen, "npk");
       updateCard("card-p", "stat-p", d.fosfor, "npk");
       updateCard("card-k", "stat-k", d.kalium, "npk");
-    });
+    };
+
+    window.updateCard = (id, statId, val, tipe) => {
+        const card = document.getElementById(id);
+        const stat = document.getElementById(statId);
+        card.className = "card";
+        if (tipe === "kelembapan") {
+            if (val < 65) { card.classList.add("status-tinggi"); stat.innerText = "Kering"; }
+            else if (val < 80) { card.classList.add("status-rendah"); stat.innerText = "Lembab"; }
+            else { card.classList.add("status-optimal"); stat.innerText = "Optimal"; }
+        } else if (tipe === "ph") {
+            if (val < 5.75) { card.classList.add("status-rendah"); stat.innerText = "Asam"; }
+            else if (val <= 7.25) { card.classList.add("status-optimal"); stat.innerText = "Optimal"; }
+            else { card.classList.add("status-tinggi"); stat.innerText = "Basa"; }
+        } else {
+            if (val < 125) { card.classList.add("status-rendah"); stat.innerText = "Rendah"; }
+            else if (val <= 175) { card.classList.add("status-optimal"); stat.innerText = "Optimal"; }
+            else { card.classList.add("status-tinggi"); stat.innerText = "Tinggi"; }
+        }
+    };
+
+    onValue(ref(db, 'kondisi_sawah'), (snap) => { if(snap.val()) updateUI(snap.val()); });
+
+    window.exportExcel = async () => {
+        const snap = await get(ref(db, 'riwayat_sawah'));
+        if (!snap.exists()) return alert("Data kosong");
+        const data = Object.values(snap.val());
+        XLSX.writeFile(XLSX.utils.book_new(), XLSX.utils.json_to_sheet(data), "Riwayat.xlsx");
+    };
+
+    window.exportPDF = async () => {
+        const snap = await get(ref(db, 'riwayat_sawah'));
+        if (!snap.exists()) return alert("Data kosong");
+        const doc = new window.jspdf.jsPDF();
+        doc.text("Laporan Riwayat Sawah", 10, 10);
+        doc.autoTable({ head: [['Kelembapan', 'pH', 'N', 'P', 'K', 'Rekomendasi']], body: Object.values(snap.val()).map(v => [v.kelembapan, v.ph, v.nitrogen, v.fosfor, v.kalium, v.rekomendasi]) });
+        doc.save("Riwayat.pdf");
+    };
+
+    window.hapusRiwayat = () => { if(confirm("Hapus semua data?")) remove(ref(db, 'riwayat_sawah')); };
   </script>
 </body>
 </html>
