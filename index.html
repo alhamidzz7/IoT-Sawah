@@ -7,56 +7,65 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Farming</title>
+  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --bg-color: #f0f4f1; --card-bg: #ffffff; --warna-biru-optimal: #3498db; --warna-kuning-rendah: #f1c40f; --warna-merah-tinggi: #e74c3c; }
-    body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); padding: 20px 15px; display: flex; flex-direction: column; align-items: center; }
-    #dashboard { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 450px; }
-    .header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .logout-btn { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-    .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; }
+    /* (CSS Tetap Sesuai Layout Awal Lo) */
+    :root { --bg-color: #f0f4f1; --card-bg: #ffffff; --text-main: #2c3e50; --warna-biru-optimal: #3498db; --warna-kuning-rendah: #f1c40f; --warna-merah-tinggi: #e74c3c; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); }
+    #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #27ae60, #1e8449); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+    .login-box { background: white; padding: 30px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+    .login-box button { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    #dashboard { display: none; padding: 20px 15px; flex-direction: column; align-items: center; }
+    .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 450px; }
     .card { background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-align: center; border-top: 5px solid #ccc; }
+    .card-title { font-size: 12px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; }
     .card-value { font-size: 24px; font-weight: 800; margin-top: 5px; }
-    .card-status { font-size: 13px; font-weight: 700; margin-top: 5px; padding: 3px 8px; border-radius: 12px; display: inline-block; }
+    .card-status { font-size: 13px; font-weight: 700; margin-top: 5px; padding: 3px 8px; border-radius: 12px; display: inline-block;}
     .status-optimal { border-top-color: var(--warna-biru-optimal); } .status-optimal .card-status { background: #e0f7fa; color: var(--warna-biru-optimal); }
     .status-rendah { border-top-color: var(--warna-kuning-rendah); } .status-rendah .card-status { background: #fef9e7; color: #d4ac0d; }
     .status-tinggi { border-top-color: var(--warna-merah-tinggi); } .status-tinggi .card-status { background: #fdedec; color: var(--warna-merah-tinggi); }
-    .rekomendasi-card { background: #7f8c8d; color: white; margin-top: 20px; width: 100%; padding: 20px; border-radius: 15px; text-align: center; }
-    .btn-container { display: flex; gap: 10px; width: 100%; margin-top: 20px; }
-    button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; }
+    .rekomendasi-card { background: #7f8c8d; color: white; margin-top: 20px; width: 100%; max-width: 450px; padding: 20px; border-radius: 15px; text-align: center; }
+    .export-container { display: flex; gap: 15px; width: 100%; max-width: 450px; margin-top: 20px; }
+    .btn-export { flex: 1; padding: 12px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body>
+  <div id="login-screen">
+    <div class="login-box">
+      <h2>Smart Farming</h2>
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Password">
+      <button onclick="login()">Masuk</button>
+    </div>
+  </div>
 
   <div id="dashboard">
-    <div class="header">
-      <h1>Smart Farming</h1>
-      <button class="logout-btn" onclick="location.reload()"><i class="fa-solid fa-power-off"></i></button>
-    </div>
-
+    <div class="header"><h1>Smart Farming</h1><button class="logout-btn" onclick="logout()">Logout</button></div>
     <div class="grid-container">
-      <div class="card" id="card-kelembapan"><div class="card-value"><span id="val-kelembapan">--</span>%</div><div class="card-status" id="stat-kelembapan">Memuat...</div></div>
-      <div class="card" id="card-ph"><div class="card-value"><span id="val-ph">--</span></div><div class="card-status" id="stat-ph">Memuat...</div></div>
-      <div class="card" id="card-n"><div class="card-value"><span id="val-n">--</span></div><div class="card-status" id="stat-n">--</div></div>
-      <div class="card" id="card-p"><div class="card-value"><span id="val-p">--</span></div><div class="card-status" id="stat-p">--</div></div>
-      <div class="card" id="card-k" style="grid-column: span 2;"><div class="card-value"><span id="val-k">--</span></div><div class="card-status" id="stat-k">--</div></div>
+      <div class="card" id="card-kelembapan"><div class="card-title">Kelembapan</div><div class="card-value"><span id="val-kelembapan">--</span>%</div><div class="card-status" id="stat-kelembapan">-</div></div>
+      <div class="card" id="card-ph"><div class="card-title">pH Tanah</div><div class="card-value"><span id="val-ph">--</span></div><div class="card-status" id="stat-ph">-</div></div>
+      <div class="card" id="card-n"><div class="card-title">Nitrogen</div><div class="card-value"><span id="val-n">--</span></div><div class="card-status" id="stat-n">-</div></div>
+      <div class="card" id="card-p"><div class="card-title">Fosfor</div><div class="card-value"><span id="val-p">--</span></div><div class="card-status" id="stat-p">-</div></div>
+      <div class="card" id="card-k" style="grid-column: span 2;"><div class="card-title">Kalium</div><div class="card-value"><span id="val-k">--</span></div><div class="card-status" id="stat-k">-</div></div>
     </div>
-
-    <div class="rekomendasi-card" id="card-rekomendasi">Menunggu data...</div>
-
-    <div class="btn-container">
-      <button style="background:#27ae60" onclick="exportExcel()">Excel</button>
-      <button style="background:#c0392b" onclick="exportPDF()">PDF</button>
+    <div class="rekomendasi-card" id="val-rekomendasi">Memuat data...</div>
+    <div class="export-container">
+        <button class="btn-export" style="background:#27ae60" onclick="exportExcel()">Excel</button>
+        <button class="btn-export" style="background:#c0392b" onclick="exportPDF()">PDF</button>
     </div>
-    <button style="background:#7f8c8d; width:100%; margin-top:10px;" onclick="hapusRiwayat()">Reset Data</button>
+    <button style="width:100%; max-width:450px; margin-top:10px; padding:12px;" onclick="hapusRiwayat()">Reset Data</button>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     
     const db = getDatabase(initializeApp({ databaseURL: "https://sawah-esp32-default-rtdb.asia-southeast1.firebasedatabase.app" }));
-    
+    const auth = getAuth();
+
     window.updateCard = (id, statId, val, tipe) => {
         const card = document.getElementById(id);
         const stat = document.getElementById(statId);
@@ -84,10 +93,7 @@
       document.getElementById('val-n').innerText = d.nitrogen;
       document.getElementById('val-p').innerText = d.fosfor;
       document.getElementById('val-k').innerText = d.kalium;
-      const rek = document.getElementById('card-rekomendasi');
-      rek.innerText = d.rekomendasi;
-      rek.style.background = d.rekomendasi.toLowerCase().includes("kritis") ? "#e74c3c" : (d.rekomendasi.toLowerCase().includes("optimal") ? "#3498db" : "#7f8c8d");
-      
+      document.getElementById('val-rekomendasi').innerText = d.rekomendasi;
       updateCard("card-kelembapan", "stat-kelembapan", d.kelembapan, "kelembapan");
       updateCard("card-ph", "stat-ph", d.ph, "ph");
       updateCard("card-n", "stat-n", d.nitrogen, "npk");
@@ -95,21 +101,21 @@
       updateCard("card-k", "stat-k", d.kalium, "npk");
     });
 
+    window.login = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).then(() => location.reload());
+    window.logout = () => signOut(auth).then(() => location.reload());
     window.exportExcel = async () => {
         const snap = await get(ref(db, 'riwayat_sawah'));
         if (!snap.exists()) return alert("Data kosong");
         XLSX.writeFile(XLSX.utils.book_new(), XLSX.utils.json_to_sheet(Object.values(snap.val())), "Riwayat.xlsx");
     };
-
     window.exportPDF = async () => {
         const snap = await get(ref(db, 'riwayat_sawah'));
         if (!snap.exists()) return alert("Data kosong");
         const doc = new window.jspdf.jsPDF();
-        doc.text("Laporan Riwayat Sawah", 10, 10);
-        doc.autoTable({ head: [['Lembap', 'pH', 'N', 'P', 'K']], body: Object.values(snap.val()).map(v => [v.kelembapan, v.ph, v.nitrogen, v.fosfor, v.kalium]) });
+        doc.text("Laporan Riwayat Sawah", 14, 15);
+        doc.autoTable({ head: [['Waktu', 'Lembap', 'pH', 'N', 'P', 'K']], body: Object.values(snap.val()).map(v => [v.waktu || "-", v.kelembapan, v.ph, v.nitrogen, v.fosfor, v.kalium]) });
         doc.save("Riwayat.pdf");
     };
-
     window.hapusRiwayat = () => { if(confirm("Hapus semua data?")) remove(ref(db, 'riwayat_sawah')); };
   </script>
 </body>
