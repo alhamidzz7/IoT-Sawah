@@ -9,43 +9,47 @@
   <title>Smart Farming</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --bg-color: #f0f4f1; --card-bg: #ffffff; --warna-biru: #3498db; --warna-kuning: #f1c40f; --warna-merah: #e74c3c; }
-    body { font-family: sans-serif; background-color: var(--bg-color); padding: 20px; display: flex; flex-direction: column; align-items: center; }
-    .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 450px; }
-    .card { background: var(--card-bg); padding: 15px; border-radius: 12px; border-top: 5px solid #ccc; text-align: center; }
+    :root { --bg-color: #f0f4f1; --card-bg: #ffffff; --warna-biru-optimal: #3498db; --warna-kuning-rendah: #f1c40f; --warna-merah-tinggi: #e74c3c; }
+    body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); padding: 20px 15px; display: flex; flex-direction: column; align-items: center; }
+    #dashboard { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 450px; }
+    .header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .logout-btn { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+    .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; }
+    .card { background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-align: center; border-top: 5px solid #ccc; }
     .card-value { font-size: 24px; font-weight: 800; margin-top: 5px; }
     .card-status { font-size: 13px; font-weight: 700; margin-top: 5px; padding: 3px 8px; border-radius: 12px; display: inline-block; }
-    .status-optimal { border-top-color: var(--warna-biru); } .status-optimal .card-status { background: #e0f7fa; color: var(--warna-biru); }
-    .status-rendah { border-top-color: var(--warna-kuning); } .status-rendah .card-status { background: #fef9e7; color: #d4ac0d; }
-    .status-tinggi { border-top-color: var(--warna-merah); } .status-tinggi .card-status { background: #fdedec; color: var(--warna-merah); }
-    
-    /* Card Rekomendasi yang bisa berubah warna */
-    #card-rekomendasi { 
-        width: 100%; max-width: 450px; margin-top: 20px; padding: 20px; 
-        border-radius: 15px; text-align: center; color: white; font-weight: bold;
-        transition: background 0.5s ease;
-    }
-    .btn-container { display: flex; gap: 10px; width: 100%; max-width: 450px; margin-top: 20px; }
+    .status-optimal { border-top-color: var(--warna-biru-optimal); } .status-optimal .card-status { background: #e0f7fa; color: var(--warna-biru-optimal); }
+    .status-rendah { border-top-color: var(--warna-kuning-rendah); } .status-rendah .card-status { background: #fef9e7; color: #d4ac0d; }
+    .status-tinggi { border-top-color: var(--warna-merah-tinggi); } .status-tinggi .card-status { background: #fdedec; color: var(--warna-merah-tinggi); }
+    .rekomendasi-card { background: #7f8c8d; color: white; margin-top: 20px; width: 100%; padding: 20px; border-radius: 15px; text-align: center; }
+    .btn-container { display: flex; gap: 10px; width: 100%; margin-top: 20px; }
     button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <div class="grid-container">
-    <div class="card" id="card-kelembapan"><div class="card-value"><span id="val-kelembapan">--</span>%</div><div class="card-status" id="stat-kelembapan">Memuat...</div></div>
-    <div class="card" id="card-ph"><div class="card-value"><span id="val-ph">--</span></div><div class="card-status" id="stat-ph">Memuat...</div></div>
-    <div class="card" id="card-n"><div class="card-value"><span id="val-n">--</span></div><div class="card-status" id="stat-n">--</div></div>
-    <div class="card" id="card-p"><div class="card-value"><span id="val-p">--</span></div><div class="card-status" id="stat-p">--</div></div>
-    <div class="card" id="card-k" style="grid-column: span 2;"><div class="card-value"><span id="val-k">--</span></div><div class="card-status" id="stat-k">--</div></div>
-  </div>
+  <div id="dashboard">
+    <div class="header">
+      <h1>Smart Farming</h1>
+      <button class="logout-btn" onclick="location.reload()"><i class="fa-solid fa-power-off"></i></button>
+    </div>
 
-  <div id="card-rekomendasi">Menunggu data...</div>
+    <div class="grid-container">
+      <div class="card" id="card-kelembapan"><div class="card-value"><span id="val-kelembapan">--</span>%</div><div class="card-status" id="stat-kelembapan">Memuat...</div></div>
+      <div class="card" id="card-ph"><div class="card-value"><span id="val-ph">--</span></div><div class="card-status" id="stat-ph">Memuat...</div></div>
+      <div class="card" id="card-n"><div class="card-value"><span id="val-n">--</span></div><div class="card-status" id="stat-n">--</div></div>
+      <div class="card" id="card-p"><div class="card-value"><span id="val-p">--</span></div><div class="card-status" id="stat-p">--</div></div>
+      <div class="card" id="card-k" style="grid-column: span 2;"><div class="card-value"><span id="val-k">--</span></div><div class="card-status" id="stat-k">--</div></div>
+    </div>
 
-  <div class="btn-container">
-    <button style="background:#27ae60" onclick="exportExcel()">Export Excel</button>
-    <button style="background:#c0392b" onclick="exportPDF()">Export PDF</button>
+    <div class="rekomendasi-card" id="card-rekomendasi">Menunggu data...</div>
+
+    <div class="btn-container">
+      <button style="background:#27ae60" onclick="exportExcel()">Excel</button>
+      <button style="background:#c0392b" onclick="exportPDF()">PDF</button>
+    </div>
+    <button style="background:#7f8c8d; width:100%; margin-top:10px;" onclick="hapusRiwayat()">Reset Data</button>
   </div>
-  <button style="background:#7f8c8d; width:100%; max-width:450px; margin-top:10px;" onclick="hapusRiwayat()">Reset Data</button>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -53,41 +57,18 @@
     
     const db = getDatabase(initializeApp({ databaseURL: "https://sawah-esp32-default-rtdb.asia-southeast1.firebasedatabase.app" }));
     
-    const updateUI = (d) => {
-      document.getElementById('val-kelembapan').innerText = d.kelembapan;
-      document.getElementById('val-ph').innerText = d.ph;
-      document.getElementById('val-n').innerText = d.nitrogen;
-      document.getElementById('val-p').innerText = d.fosfor;
-      document.getElementById('val-k').innerText = d.kalium;
-      
-      // Update Rekomendasi & Warna
-      const rekCard = document.getElementById('card-rekomendasi');
-      rekCard.innerText = d.rekomendasi;
-      const t = d.rekomendasi.toLowerCase();
-      if (t.includes("kritis")) rekCard.style.background = "#e74c3c";
-      else if (t.includes("sempurna")) rekCard.style.background = "#3498db";
-      else rekCard.style.background = "#f1c40f";
-
-      // Update Card Status
-      updateCard("card-kelembapan", "stat-kelembapan", d.kelembapan, "kelembapan");
-      updateCard("card-ph", "stat-ph", d.ph, "ph");
-      updateCard("card-n", "stat-n", d.nitrogen, "npk");
-      updateCard("card-p", "stat-p", d.fosfor, "npk");
-      updateCard("card-k", "stat-k", d.kalium, "npk");
-    };
-
     window.updateCard = (id, statId, val, tipe) => {
         const card = document.getElementById(id);
         const stat = document.getElementById(statId);
         card.className = "card";
-        if (tipe === "kelembapan") {
+        if (tipe === "ph") {
+            if (val < 6.0) { card.classList.add("status-rendah"); stat.innerText = "Asam"; }
+            else if (val <= 7.0) { card.classList.add("status-optimal"); stat.innerText = "Optimal"; }
+            else { card.classList.add("status-tinggi"); stat.innerText = "Basa"; }
+        } else if (tipe === "kelembapan") {
             if (val < 65) { card.classList.add("status-tinggi"); stat.innerText = "Kering"; }
             else if (val < 80) { card.classList.add("status-rendah"); stat.innerText = "Lembab"; }
             else { card.classList.add("status-optimal"); stat.innerText = "Optimal"; }
-        } else if (tipe === "ph") {
-            if (val < 5.75) { card.classList.add("status-rendah"); stat.innerText = "Asam"; }
-            else if (val <= 7.25) { card.classList.add("status-optimal"); stat.innerText = "Optimal"; }
-            else { card.classList.add("status-tinggi"); stat.innerText = "Basa"; }
         } else {
             if (val < 125) { card.classList.add("status-rendah"); stat.innerText = "Rendah"; }
             else if (val <= 175) { card.classList.add("status-optimal"); stat.innerText = "Optimal"; }
@@ -95,13 +76,29 @@
         }
     };
 
-    onValue(ref(db, 'kondisi_sawah'), (snap) => { if(snap.val()) updateUI(snap.val()); });
+    onValue(ref(db, 'kondisi_sawah'), (snap) => {
+      const d = snap.val();
+      if (!d) return;
+      document.getElementById('val-kelembapan').innerText = d.kelembapan;
+      document.getElementById('val-ph').innerText = d.ph;
+      document.getElementById('val-n').innerText = d.nitrogen;
+      document.getElementById('val-p').innerText = d.fosfor;
+      document.getElementById('val-k').innerText = d.kalium;
+      const rek = document.getElementById('card-rekomendasi');
+      rek.innerText = d.rekomendasi;
+      rek.style.background = d.rekomendasi.toLowerCase().includes("kritis") ? "#e74c3c" : (d.rekomendasi.toLowerCase().includes("optimal") ? "#3498db" : "#7f8c8d");
+      
+      updateCard("card-kelembapan", "stat-kelembapan", d.kelembapan, "kelembapan");
+      updateCard("card-ph", "stat-ph", d.ph, "ph");
+      updateCard("card-n", "stat-n", d.nitrogen, "npk");
+      updateCard("card-p", "stat-p", d.fosfor, "npk");
+      updateCard("card-k", "stat-k", d.kalium, "npk");
+    });
 
     window.exportExcel = async () => {
         const snap = await get(ref(db, 'riwayat_sawah'));
         if (!snap.exists()) return alert("Data kosong");
-        const data = Object.values(snap.val());
-        XLSX.writeFile(XLSX.utils.book_new(), XLSX.utils.json_to_sheet(data), "Riwayat.xlsx");
+        XLSX.writeFile(XLSX.utils.book_new(), XLSX.utils.json_to_sheet(Object.values(snap.val())), "Riwayat.xlsx");
     };
 
     window.exportPDF = async () => {
@@ -109,7 +106,7 @@
         if (!snap.exists()) return alert("Data kosong");
         const doc = new window.jspdf.jsPDF();
         doc.text("Laporan Riwayat Sawah", 10, 10);
-        doc.autoTable({ head: [['Kelembapan', 'pH', 'N', 'P', 'K', 'Rekomendasi']], body: Object.values(snap.val()).map(v => [v.kelembapan, v.ph, v.nitrogen, v.fosfor, v.kalium, v.rekomendasi]) });
+        doc.autoTable({ head: [['Lembap', 'pH', 'N', 'P', 'K']], body: Object.values(snap.val()).map(v => [v.kelembapan, v.ph, v.nitrogen, v.fosfor, v.kalium]) });
         doc.save("Riwayat.pdf");
     };
 
